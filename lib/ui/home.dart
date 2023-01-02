@@ -936,10 +936,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
       try {
         //Licencias de test
-        //String license = Platform.isAndroid ? "AVrFZPGeVmBC2UVxZE6" : Platform.isIOS ? "Ewn65cPVMwdorum8XfIz" : ""; //TODO cambiar a producción antes de subir versión
+        String license = Platform.isAndroid ? "AVrFZPGeVmBC2UVxZE6" : Platform.isIOS ? "Ewn65cPVMwdorum8XfIz" : ""; //TODO cambiar a producción antes de subir versión
 
         //Licencias de producción
-        String license = Platform.isAndroid ? "AqOyI8v0t7NmhVbJAyO" : Platform.isIOS ? "gPhnzyzwlovPkyjbNqFw" : "";
+        //String license = Platform.isAndroid ? "AqOyI8v0t7NmhVbJAyO" : Platform.isIOS ? "gPhnzyzwlovPkyjbNqFw" : "";
 
         String childCode = _children[_selectedChild].childCode ?? '000000000';
 
