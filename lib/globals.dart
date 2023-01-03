@@ -33,7 +33,7 @@ class Constants {
   static String esProfesor = 'IS_PROFESSOR';
   static String language = 'LANGUAGE';
   static String merchantId = 'MERCHANT_ID';
-  static String merchantUrl = '$redirectionBase/respuestatransaccion';
+  static String merchantUrl = '${apiUrl}respuestatransaccion.ashx';
 }
 
 class FunctionNames {
