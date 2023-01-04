@@ -69,6 +69,8 @@ import TPVVInLibrary
                       let amount = args["amount"] as? Double,
                       let paymentType = args["paymentType"] as? String,
                       let productDescription = args["productDescription"] as? String,
+                      let merchantUrl = args["merchantUrl"] as? String,
+                      let merchantData = args["merchantData"] as? String,
                       let params = args["params"] as? [String:String]? {
                       
                       self?.res = result
@@ -79,6 +81,8 @@ import TPVVInLibrary
                       TPVVConfiguration.shared.appTerminal = terminal
                       TPVVConfiguration.shared.appCurrency = currency
                       TPVVConfiguration.shared.appMerchantConsumerLanguage = language
+                      TPVVConfiguration.shared.appMerchantURL = merchantUrl
+                      TPVVConfiguration.shared.appMerchantData = merchantData
 
                       let wpView = WebViewPaymentController(orderNumber: orderCode, amount: amount / 100, productDescription: productDescription, transactionType: TransactionType.normal, identifier: "", extraParams: params)
                       wpView.delegate = self

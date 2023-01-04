@@ -43,8 +43,8 @@ public class MainActivity extends FlutterActivity {
                     case "redsys":
                         final String license = call.argument("license");
 
-                        //String environment = TPVVConstants.ENVIRONMENT_REAL;
-                        String environment = TPVVConstants.ENVIRONMENT_TEST; //TODO cambiar a producción antes de subir versión
+                        String environment = TPVVConstants.ENVIRONMENT_REAL;
+                        //String environment = TPVVConstants.ENVIRONMENT_TEST;
 
                         final String fuc = call.argument("fuc");
                         final String terminal = call.argument("terminal");

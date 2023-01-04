@@ -936,10 +936,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
       try {
         //Licencias de test
-        String license = Platform.isAndroid ? "AVrFZPGeVmBC2UVxZE6" : Platform.isIOS ? "Ewn65cPVMwdorum8XfIz" : ""; //TODO cambiar a producción antes de subir versión
+        //String license = Platform.isAndroid ? "AVrFZPGeVmBC2UVxZE6" : Platform.isIOS ? "Ewn65cPVMwdorum8XfIz" : "";
 
         //Licencias de producción
-        //String license = Platform.isAndroid ? "AqOyI8v0t7NmhVbJAyO" : Platform.isIOS ? "gPhnzyzwlovPkyjbNqFw" : "";
+        String license = Platform.isAndroid ? "AqOyI8v0t7NmhVbJAyO" : Platform.isIOS ? "gPhnzyzwlovPkyjbNqFw" : "";
 
         String childCode = _children[_selectedChild].childCode ?? '000000000';
 
@@ -961,10 +961,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         String language = languageNotifier.value == 'es' ? TPVVConstants.spanish : TPVVConstants.catalan;
         Map<String, String> params = {};
 
+        String f = FunctionNames.bookService;
         MerchantData data = MerchantData(
           appCode: Constants.appCode,
+          f: f,
           username: username,
           password: password,
+          sign: sign(f, username),
           childCode: childCode,
           serviceCode: _services[_selectedService].serviceCode,
           dates: dates.toString().replaceAll(' ', ''),
@@ -1005,6 +1008,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(translate('sporadic.purchaseSuccessful'))),
         );
+
+        setState(() {
+          _selectedDates.removeRange(0, _selectedDates.length);
+          _monthShowing = DateTime.now().month;
+        });
+        _changeMonth();
+        _tabController.animateTo(0);
 
         //Ya no se llama a book_service, se usa el merchantUrl para que el banco informe directamente a la plataforma
         /*try {

@@ -369,8 +369,10 @@ class BookedDay {
 
 class MerchantData {
   final String appCode;
+  final String f;
   final String username;
   final String password;
+  final String sign;
   final String childCode;
   final String serviceCode;
   final String dates;
@@ -378,8 +380,10 @@ class MerchantData {
 
   MerchantData({
     required this.appCode,
+    required this.f,
     required this.username,
     required this.password,
+    required this.sign,
     required this.childCode,
     required this.serviceCode,
     required this.dates,
@@ -388,15 +392,17 @@ class MerchantData {
 
   Map<String, dynamic> toJson() => {
     'app_code': appCode,
+    'f': f,
     'username': username,
     'password': password,
+    'sign': sign,
     'child_code': childCode,
     'service_code': serviceCode,
     'dates': dates,
     'comments': comments,
   };
 
-  String toGetString() => 'app_code=$appCode&username=$username&password=$password&child_code=$childCode&service_code=$serviceCode&dates=$dates&comments=$comments'.replaceAll(' ', '%20');
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode&service_code=$serviceCode&dates=$dates&comments=$comments'.replaceAll(' ', '%20');
 }
 
 class BookServiceRequest {
