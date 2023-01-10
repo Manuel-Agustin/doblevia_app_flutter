@@ -237,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         if (kDebugMode) debugPrint('DVLOG: limit time: ${limit.toString()}');
 
         _calendarDates.addAll(List.generate(DateTime(_monthShowing == 12 ? _yearShowing + 1 : _yearShowing, _monthShowing == 12 ? 1 : _monthShowing + 1, 0).day, (index) {
-          DateTime dt = DateTime(_yearShowing, _monthShowing, index + 1);
+          DateTime dt = DateTime(_yearShowing, _monthShowing, index + 1, now.hour, now.minute, now.second);
 
           return CalendarDate(
             weekDay: dt.weekday,
