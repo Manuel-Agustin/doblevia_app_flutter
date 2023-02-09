@@ -154,7 +154,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                 final appId = Platform.isAndroid ? 'com.doblevia.comunicacions' : '1636319799';
                 final url = Uri.parse(
                   Platform.isAndroid
-                      ? "market://details?id=$appId"
+                      ? "https://play.google.com/store/apps/details?id=$appId"
                       : "https://apps.apple.com/app/id$appId",
                 );
                 launchUrl(
@@ -1002,8 +1002,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           }
         }
         debugPrint('DVLOG merchant id 2: $merchantId');
-        String paymentType = _rememberCard ? TPVVConstants.PAYMENT_TYPE_AUTHENTICATION : TPVVConstants.PAYMENT_TYPE_NORMAL;
-        //String paymentType = TPVVConstants.PAYMENT_TYPE_NORMAL;
+        //String paymentType = _rememberCard ? TPVVConstants.PAYMENT_TYPE_AUTHENTICATION : TPVVConstants.PAYMENT_TYPE_NORMAL;
+        String paymentType = TPVVConstants.PAYMENT_TYPE_NORMAL;
         String orderCode = "${childCode.substring(childCode.length - 4)}${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}";
         double totalPrice = _services[_selectedService].servicePrice * _selectedDates.length;
         double amount = totalPrice * (Platform.isAndroid ? 100 : 100); //precio en centimos en android, y en euros en ios
