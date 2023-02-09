@@ -15,9 +15,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 //import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:version/version.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:intl/intl.dart';
 
@@ -77,6 +79,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   late AnimationController _bellController;
   late Animation<Color?> _bellColor;
 
+  bool _rememberCard = false;
+  bool _firstTimeRememberingCard = true;
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
@@ -97,8 +102,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(vsync: this, length: 3);
+    _tabController.addListener(() {
+      setState(() {});
+    });
 
     changeLocale(context, languageNotifier.value);
+
+    _getMinVersion();
 
     _firebaseInit();
 
@@ -125,6 +135,39 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       shakeKey.currentState?.shake();
     }
   }*/
+
+  void _getMinVersion() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    String minVersion = await getMinVersion(context);
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+
+    if (Version.parse(version) < Version.parse(minVersion)) {
+      showDialog(context: context, barrierDismissible: false, builder: (context) {
+        return AlertDialog(
+          title: Text(translate('main.updateAvailable')),
+          content: Text(translate('main.updateBody')),
+          actions: [
+            TextButton(
+              child: Text(translate('main.accept').toUpperCase()),
+              onPressed: () {
+                final appId = Platform.isAndroid ? 'com.doblevia.comunicacions' : '1636319799';
+                final url = Uri.parse(
+                  Platform.isAndroid
+                      ? "market://details?id=$appId"
+                      : "https://apps.apple.com/app/id$appId",
+                );
+                launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                );
+              }
+            )
+          ],
+        );
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -197,6 +240,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         SnackBar(content: Text('Catch: $e'), backgroundColor: Colors.red),
       );
     }
+
+    bool r = await getRememberCard();
+    bool ft = await isFirstTimeRememberingCard();
+    setState(() {
+      _rememberCard = r;
+      _firstTimeRememberingCard = ft;
+    });
   }
 
   void _changeMonth() async {
@@ -354,25 +404,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               Tab(text: translate('main.sporadics')),
               Tab(child: Row(children: [
                 Text(translate('main.notifications')),
-
-                  AnimatedBuilder(
-                    animation: _bellColor,
-                    builder: (BuildContext _, Widget? __) {
-                      return Icon(Icons.notifications, size: _notifications.isEmpty ? 0 : 20, color: _bellColor.value);
-                      return Container(
-                        width: 20,
-                        height: 20,
-                        decoration:
-                        BoxDecoration(color: _bellColor.value, shape: BoxShape.circle),
-                      );
-                    },
-                  ),
-
-
-                /*_ShakeWidget(
-                  key: shakeKey,
-                  child: Icon(Icons.notifications, size: _notifications.isEmpty ? 0 : 20, color: Colors.red)
-                ),*/
+                AnimatedBuilder(
+                  animation: _bellColor,
+                  builder: (BuildContext _, Widget? __) {
+                    return Icon(Icons.notifications, size: _notifications.isEmpty ? 0 : 20, color: _bellColor.value);
+                  },
+                ),
               ])),
             ],
           ),
@@ -393,15 +430,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           ],
         ),
         body: Stack(children: [
-          TabBarView(
+          _webViewPage(),
+          /*TabBarView(
             controller: _tabController,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              _webViewPage(),
-              _bookingPage(),
-              _notificationsPage(),
+              SizedBox(width: 0, height: 0, child: Container(color: Colors.green)),
+              //_webViewPage(),
+              Container(color: Colors.white, child: _bookingPage()),
+              Container(color: Colors.white, child: _notificationsPage()),
             ]
-          ),
+          ),*/
+          _tabController.index == 0 ? Container()
+          : _tabController.index == 1 ? Container(color: Colors.white, child: _bookingPage())
+          : Container(color: Colors.white, child: _notificationsPage()),
 
           _showLanguageDialog ? _customDialog(
               () => setState(() => _showLanguageDialog = false),
@@ -927,6 +969,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     Future<void> doPlatformSpecificStuff() async {
       setState(() => _loading = true);
+
+      saveBoolSharedPreferences(Constants.rememberCard, _rememberCard);
+      if (_rememberCard) {
+        saveBoolSharedPreferences(Constants.firstTimeRememberingCard, false);
+      }
+
       NumberFormat formatter = NumberFormat('00');
       List<String> dates = [];
       for (var element in _selectedDates) {
@@ -945,14 +993,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
         String fuc = "356863803";
         String terminal = "001";
-        String? merchantId = await getMerchantId();
-        debugPrint('merchant id 1: $merchantId');
-        if (merchantId == null || merchantId == '' || merchantId == 'null') {
-          merchantId = TPVVConstants.REQUEST_REFERENCE;
+        String? merchantId = '';
+        if (_rememberCard) {
+          merchantId = await getMerchantId();
+          debugPrint('DVLOG merchant id 1: $merchantId');
+          if ((merchantId == null || merchantId == '' || merchantId == 'null')) {
+            merchantId = TPVVConstants.REQUEST_REFERENCE;
+          }
         }
-        debugPrint('merchant id 2: $merchantId');
-        //String paymentType = merchantId == null ? TPVVConstants.PAYMENT_TYPE_AUTHENTICATION : TPVVConstants.PAYMENT_TYPE_AUTHENTICATION;
-        String paymentType = TPVVConstants.PAYMENT_TYPE_NORMAL;
+        debugPrint('DVLOG merchant id 2: $merchantId');
+        String paymentType = _rememberCard ? TPVVConstants.PAYMENT_TYPE_AUTHENTICATION : TPVVConstants.PAYMENT_TYPE_NORMAL;
+        //String paymentType = TPVVConstants.PAYMENT_TYPE_NORMAL;
         String orderCode = "${childCode.substring(childCode.length - 4)}${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}";
         double totalPrice = _services[_selectedService].servicePrice * _selectedDates.length;
         double amount = totalPrice * (Platform.isAndroid ? 100 : 100); //precio en centimos en android, y en euros en ios
@@ -974,8 +1025,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           comments: _commentsController.text
         );
 
-        debugPrint('MERCHANT URL: ${Constants.merchantUrl}');
-        debugPrint('MERCHANT DATA: ${json.encode(data.toJson())}');
+        debugPrint('DVLOG MERCHANT URL: ${Constants.merchantUrl}');
+        debugPrint('DVLOG MERCHANT DATA: ${json.encode(data.toJson())}');
 
         final String result = await platform.invokeMethod('redsys', {
           "license": license,
@@ -993,8 +1044,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           "merchantData": json.encode(data.toJson())
         });
         if (!mounted) return;
-        if (kDebugMode) debugPrint('REDSYS RESPONSE');
-        if (kDebugMode) debugPrint(result);
+        if (kDebugMode) debugPrint('DVLOG REDSYS RESPONSE');
+        if (kDebugMode) debugPrint('DVLOG $result');
         RedsysResponse redsysResponse;
         /*if (Platform.isIOS) {
           redsysResponse = RedsysResponse.fromJson(jsonDecode('{$result}'));
@@ -1003,15 +1054,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           redsysResponse = RedsysResponse.fromJson(res);
         //}
         if (kDebugMode) debugPrint('authorisation code: ${redsysResponse.authorisationCode}');
+        if (kDebugMode) debugPrint('DVLOG REDSYS RESPONSE Merchant ID: ${redsysResponse.identifier}');
         saveStringSharedPreferences(Constants.merchantId, redsysResponse.identifier);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(translate('sporadic.purchaseSuccessful'))),
         );
 
+        _firstTimeRememberingCard = await isFirstTimeRememberingCard();
         setState(() {
           _selectedDates.removeRange(0, _selectedDates.length);
           _monthShowing = DateTime.now().month;
+          _commentsController.text = '';
         });
         _changeMonth();
         _tabController.animateTo(0);
@@ -1157,44 +1211,55 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             const SizedBox(height: 24),
 
             CheckboxListTile(
-              value: _conditionsAccepted,
-              onChanged: (bool? newValue) => setState(() => _conditionsAccepted = newValue == true),
+              value: _rememberCard,
+              onChanged: (bool? newValue) => setState(() => _rememberCard = newValue == true),
               controlAffinity: ListTileControlAffinity.leading,
               contentPadding: const EdgeInsets.all(0),
-              title: RichText(
-                text: TextSpan(
-                  text: translate('sporadic.IAccept'),
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: translate('sporadic.conditions').toLowerCase(),
-                      style: const TextStyle(color: AppColors.blue),
-                      recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.conditionsURL'), isOnline: true, title: translate('sporadic.conditions')))
+              title: Text(
+                _firstTimeRememberingCard ? translate('sporadic.rememberCard') : translate('sporadic.usePreviousCard'),
+                style: DefaultTextStyle.of(context).style,
+              ),
+            ),
+
+            CheckboxListTile(
+                value: _conditionsAccepted,
+                onChanged: (bool? newValue) => setState(() => _conditionsAccepted = newValue == true),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: const EdgeInsets.all(0),
+                title: RichText(
+                  text: TextSpan(
+                    text: translate('sporadic.IAccept'),
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: translate('sporadic.conditions').toLowerCase(),
+                        style: const TextStyle(color: AppColors.blue),
+                        recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.conditionsURL'), isOnline: true, title: translate('sporadic.conditions')))
+                        ),
                       ),
-                    ),
-                    const TextSpan(text: ', '),
-                    TextSpan(
-                      text: translate('sporadic.privacyPolicy').toLowerCase(),
-                      style: const TextStyle(color: AppColors.blue),
-                      recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.privacyPolicyURL'), isOnline: true, title: translate('sporadic.privacyPolicy')))
+                      const TextSpan(text: ', '),
+                      TextSpan(
+                        text: translate('sporadic.privacyPolicy').toLowerCase(),
+                        style: const TextStyle(color: AppColors.blue),
+                        recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.privacyPolicyURL'), isOnline: true, title: translate('sporadic.privacyPolicy')))
+                        ),
                       ),
-                    ),
-                    TextSpan(text: translate('sporadic.and')),
-                    TextSpan(
-                      text: translate('sporadic.cookiesPolicy').toLowerCase(),
-                      style: const TextStyle(color: AppColors.blue),
-                      recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.cookiesPolicyURL'), isOnline: true, title: translate('sporadic.cookiesPolicy')))
+                      TextSpan(text: translate('sporadic.and')),
+                      TextSpan(
+                        text: translate('sporadic.cookiesPolicy').toLowerCase(),
+                        style: const TextStyle(color: AppColors.blue),
+                        recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.cookiesPolicyURL'), isOnline: true, title: translate('sporadic.cookiesPolicy')))
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              )
+                    ],
+                  ),
+                )
             ),
 
             GestureDetector(

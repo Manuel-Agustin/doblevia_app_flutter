@@ -34,6 +34,8 @@ class Constants {
   static String language = 'LANGUAGE';
   static String merchantId = 'MERCHANT_ID';
   static String merchantUrl = '${apiUrl}respuestatransaccion.ashx';
+  static String rememberCard = 'REMEMBER_CARD';
+  static String firstTimeRememberingCard = 'FIRST_TIME_REMEMBERING_CARD';
 }
 
 class FunctionNames {
@@ -49,4 +51,5 @@ class FunctionNames {
   static String getUserData = 'get_user_data';
   static String deleteToken = 'delete_token';
   static String userDisable = 'user_disable';
+  static String getMinVersion = 'get_min_version';
 }

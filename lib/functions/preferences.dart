@@ -60,3 +60,15 @@ Future<String> getToken() async {
   return token;
 }
 
+Future<bool> getRememberCard() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  var rememberCard = prefs.getBool(Constants.rememberCard);
+  return rememberCard ?? false;
+}
+
+Future<bool> isFirstTimeRememberingCard() async {
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  var rememberCard = prefs.getBool(Constants.firstTimeRememberingCard);
+  return rememberCard ?? true;
+}
+

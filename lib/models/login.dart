@@ -68,22 +68,32 @@ class BasicRequest {
   final String username;
   final String password;
   final String sign;
+  final String? ncAppVersion;
 
   BasicRequest({
     required this.appCode,
     required this.f,
     required this.username,
     required this.password,
-    required this.sign
+    required this.sign,
+    this.ncAppVersion
   });
 
-  Map<String, dynamic> toJson() => {
-    'app_code': appCode,
-    'f': f,
-    'username': username,
-    'password': password,
-    'sign': sign
-  };
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'app_code': appCode,
+      'f': f,
+      'username': username,
+      'password': password,
+      'sign': sign
+    };
+    if (ncAppVersion != null) {
+      map.addAll({
+        'ncAppVersion': ncAppVersion
+      });
+    }
+    return map;
+  }
 
   String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
 }
@@ -95,6 +105,7 @@ class GetNotificationsRequest {
   final String password;
   final String sign;
   final String token;
+  final String ncAppVersion;
 
   GetNotificationsRequest({
     required this.appCode,
@@ -102,7 +113,8 @@ class GetNotificationsRequest {
     required this.username,
     required this.password,
     required this.sign,
-    required this.token
+    required this.token,
+    required this.ncAppVersion
   });
 
   Map<String, dynamic> toJson() => {
@@ -111,9 +123,11 @@ class GetNotificationsRequest {
     'username': username,
     'password': password,
     'sign': sign,
-    'notifications_token': token
+    'notifications_token': token,
+    'ncAppVersion': ncAppVersion
   };
 
+  //String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token&ncAppVersion=$ncAppVersion';
   String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token';
 }
 
@@ -169,6 +183,7 @@ class ChildCodeRequest {
   final String password;
   final String sign;
   final String childCode;
+  final String ncAppVersion;
 
   ChildCodeRequest({
     required this.appCode,
@@ -176,7 +191,8 @@ class ChildCodeRequest {
     required this.username,
     required this.password,
     required this.sign,
-    required this.childCode
+    required this.childCode,
+    required this.ncAppVersion
   });
 
   Map<String, dynamic> toJson() => {
@@ -185,10 +201,12 @@ class ChildCodeRequest {
     'username': username,
     'password': password,
     'sign': sign,
-    'child_code': childCode
+    'child_code': childCode,
+    'ncAppVersion': ncAppVersion
   };
 
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode&ncAppVersion=$ncAppVersion';
+  //String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode';
 }
 
 class ServiceResponse {

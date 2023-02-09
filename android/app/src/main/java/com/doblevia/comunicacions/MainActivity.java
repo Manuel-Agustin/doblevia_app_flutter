@@ -85,7 +85,7 @@ public class MainActivity extends FlutterActivity {
                         Log.i("DVLOG", "opening direct payment");
 
                         //para guardar datos de la tarjeta enviar el merchant ID
-                        TPVV.doWebViewPayment(getApplicationContext(), orderCode, amount, paymentType, null, productDescription, null, new IPaymentResult() {
+                        TPVV.doWebViewPayment(getApplicationContext(), orderCode, amount, paymentType, merchantId, productDescription, null, new IPaymentResult() {
                             @Override
                             public void paymentResultOK(ResultResponse response) {
                                 Log.i("DVLOG", "RESPONSE: " + response.toString());

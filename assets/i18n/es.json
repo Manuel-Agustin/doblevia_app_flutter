@@ -51,7 +51,9 @@
     "people": "Personas",
     "deleteAccount": "Dar de baja cuenta de usuario",
     "areYouSureDeleteAccount": "¿Está seguro de querer dar de baja la cuenta?",
-    "deleteAccountMgs": "Todos los datos de este usuario se borrarán y no podrán recuperarse."
+    "deleteAccountMgs": "Todos los datos de este usuario se borrarán y no podrán recuperarse.",
+    "updateAvailable": "Nueva versión de la app",
+    "updateBody": "Para utilizar la app hace falta descargar la última versión."
   },
   "sporadic": {
     "date": "Fecha",
@@ -104,6 +106,8 @@
     "buy": "Comprar",
     "import": "Importe",
     "day": "día",
-    "comments": "Observaciones"
+    "comments": "Observaciones",
+    "rememberCard": "Recordar los datos de tarjeta para futuras compras",
+    "usePreviousCard": "Utilizar los datos de tarjeta guardados"
   }
 }

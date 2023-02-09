@@ -70,17 +70,21 @@ Future<LoginResponse> login(BuildContext context, String username, String passwo
 }
 
 Future<ChildResponse> getChildren(BuildContext context) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
   String appCode = Constants.appCode;
   String f = FunctionNames.getChildren;
   String username = await getUsername();
   String password = await getPassword();
+  String ncAppVersion = packageInfo.version;
 
   BasicRequest request = BasicRequest(
       appCode: appCode,
       f: f,
       username: username,
       password: password,
-      sign: sign(f, username)
+      sign: sign(f, username),
+      //ncAppVersion: ncAppVersion
   );
 
   if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
@@ -112,18 +116,22 @@ Future<ChildResponse> getChildren(BuildContext context) async {
 }
 
 Future<ServiceResponse> getServices(BuildContext context, String childCode) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
   String appCode = Constants.appCode;
   String f = FunctionNames.getServices;
   String username = await getUsername();
   String password = await getPassword();
+  String ncAppVersion = packageInfo.version;
 
   ChildCodeRequest request = ChildCodeRequest(
-      appCode: appCode,
-      f: f,
-      username: username,
-      password: password,
-      sign: sign(f, username),
-      childCode: childCode
+    appCode: appCode,
+    f: f,
+    username: username,
+    password: password,
+    sign: sign(f, username),
+    childCode: childCode,
+    ncAppVersion: ncAppVersion
   );
 
   if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
@@ -298,11 +306,14 @@ Future<BasicSuccessResponse> userSetLanguage(BuildContext context, String langua
 }
 
 Future<NotificationResponse> getNotifications(BuildContext context) async {
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
   String appCode = Constants.appCode;
   String f = FunctionNames.getNotifications;
   String username = await getUsername();
   String password = await getPassword();
   String token = await getToken();
+  String ncAppVersion = packageInfo.version;
 
   GetNotificationsRequest request = GetNotificationsRequest(
     appCode: appCode,
@@ -310,7 +321,8 @@ Future<NotificationResponse> getNotifications(BuildContext context) async {
     username: username,
     password: password,
     sign: sign(f, username),
-    token: token
+    token: token,
+    ncAppVersion: ncAppVersion
   );
 
   if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
@@ -517,6 +529,41 @@ Future<int> userDisable(BuildContext context) async {
 
   if (response.statusCode == 200) {
     return 200;
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to login: ${response.statusCode}');
+  }
+}
+
+Future<String> getMinVersion(BuildContext context) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getMinVersion;
+  String username = await getUsername();
+  String password = await getPassword();
+
+  BasicRequest request = BasicRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username)
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (kDebugMode) {
+    print('REQUEST: ');
+    print(response.request);
+    print('RESPONSE: ');
+    print(response.statusCode);
+    print(response.body.toString());
+    //print(response.headers.toString());
+  }
+
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)[0]['ncVersionMinima'];
   } else {
     if (kDebugMode) print('Status code: ${response.statusCode}');
     throw Exception('Failed to login: ${response.statusCode}');

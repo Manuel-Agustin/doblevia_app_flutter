@@ -51,7 +51,9 @@
     "people": "Persones",
     "deleteAccount": "Donar de baixa el compte",
     "areYouSureDeleteAccount": "Estàs segur de voler donar de baixa el compte?",
-    "deleteAccountMgs": "Totes les dades d'aquest usuari s'esborraran i no es podran recuperar."
+    "deleteAccountMgs": "Totes les dades d'aquest usuari s'esborraran i no es podran recuperar.",
+    "updateAvailable": "Nova versió de la app",
+    "updateBody": "Per utilitzar l'app cal descarregar l'última versió."
   },
   "sporadic": {
     "date": "Data",
@@ -104,6 +106,8 @@
     "buy": "Comprar",
     "import": "Import",
     "day": "dia",
-    "comments": "Observacions"
+    "comments": "Observacions",
+    "rememberCard": "Recordar les dades de targeta per a futures compres",
+    "usePreviousCard": "Utilitzar les dades de targeta desades"
   }
 }

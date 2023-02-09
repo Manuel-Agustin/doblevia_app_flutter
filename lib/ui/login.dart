@@ -96,7 +96,7 @@ class _MyLoginPage extends State<MyLoginPage> {
                     onTap: () {
                       Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => MyWebViewPage(url: '${Constants.redirectionBase}/login#:~:text=No%20recordes%20la%20contrasenya%3F', isOnline: true, title: translate('login.recoverPassword')))
+                          MaterialPageRoute(builder: (context) => MyWebViewPage(url: '${Constants.redirectionBase}/login?p=1', isOnline: true, title: translate('login.recoverPassword')))
                       );
                     },
                     child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
