@@ -924,11 +924,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         return GestureDetector(
           onTap: () {
             //print('DVLOG: clicking available day');
-            if (_selectedDates.contains(dt)) {
-              //print('DVLOG: removing day');
-              setState(() => _selectedDates.remove(dt));
+            if (isSelectedDate) {
+              debugPrint('DVLOG: removing day');
+              for (var element in _selectedDates) {
+                if (element.day == dt.day && element.month == dt.month && element.year == dt.year) setState(() => _selectedDates.remove(element));
+              }
             } else {
-              //print('DVLOG: adding day');
+              debugPrint('DVLOG: adding day');
               setState(() => _selectedDates.add(dt));
             }
           },
@@ -942,10 +944,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               child: MediaQuery.of(context).size.width > 500
                   ? Text('${cd.dayNumber == -1 ? '' : cd.dayNumber}', style: TextStyle(color: Colors.white, fontSize: bigTextSize))
                   : Text('${cd.dayNumber == -1 ? '' : cd.dayNumber}', style: const TextStyle(color: Colors.white)),
-              /*child: Text(
-                '${cd.dayNumber == -1 ? '' : cd.dayNumber}',
-                style: const TextStyle(color: Colors.white),
-              )*/
           ) : Container(
             alignment: Alignment.center,
             color: Colors.transparent,
