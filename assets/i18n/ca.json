@@ -108,6 +108,8 @@
     "day": "dia",
     "comments": "Observacions",
     "rememberCard": "Recordar les dades de targeta per a futures compres",
-    "usePreviousCard": "Utilitzar les dades de targeta desades"
+    "usePreviousCard": "Utilitzar les dades de targeta desades",
+    "tickets": "Tickets",
+    "alreadyPurchased":  "ja reservats"
   }
 }

@@ -41,6 +41,7 @@ Future<LoginResponse> login(BuildContext context, String username, String passwo
   );
 
   if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+  if (kDebugMode) print('DVLOG: request url: ${Constants.apiUrl}?${request.toGetString()}');
 
   /*final response = await http.post(Uri.parse(Constants.apiUrl),
     headers: <String, String>{
@@ -48,6 +49,7 @@ Future<LoginResponse> login(BuildContext context, String username, String passwo
     },
     body: json.encode(request.toJson())
   );*/
+
 
   final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
 
@@ -314,6 +316,7 @@ Future<NotificationResponse> getNotifications(BuildContext context) async {
   String password = await getPassword();
   String token = await getToken();
   String ncAppVersion = packageInfo.version;
+  debugPrint("NCLOG TOKEN: $token");
 
   GetNotificationsRequest request = GetNotificationsRequest(
     appCode: appCode,
@@ -325,7 +328,7 @@ Future<NotificationResponse> getNotifications(BuildContext context) async {
     ncAppVersion: ncAppVersion
   );
 
-  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+  if (kDebugMode) print('DVLOG: get_notifications request: ${json.encode(request.toGetString())}');
 
   /*final response = await http.get(
     Uri.parse(Constants.apiUrl),

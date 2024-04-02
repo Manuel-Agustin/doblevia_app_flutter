@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+//import 'dart:html' as html;
 import 'dart:io';
 import 'dart:math';
 
@@ -52,6 +53,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   int _selectedChild = 0;
   final List<ServiceInfo> _services = [];
   int _selectedService = 0;
+  DateTime _singleDate = DateTime.now();
+  int _bookedDays = 0;
 
   bool _showCalendar = false;
   bool _calendarLoading = false;
@@ -94,6 +97,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         break;
       case AppLifecycleState.detached:
         break;
+      case AppLifecycleState.hidden:
+        break;
     }
   }
 
@@ -126,29 +131,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     _bellColor = ColorTween(begin: Colors.red, end: null).animate(CurvedAnimation(parent: _bellController, curve: Curves.easeInOutExpo));
   }
 
-  /*void _animateBell() async {
-    if (_notifications.isNotEmpty) {
-      shakeKey.currentState?.shake();
-      await Future.delayed(const Duration(seconds: 1));
-      shakeKey.currentState?.shake();
-      await Future.delayed(const Duration(seconds: 1));
-      shakeKey.currentState?.shake();
-    }
-  }*/
-
-  void _getMinVersion() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    String minVersion = await getMinVersion(context);
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String version = packageInfo.version;
-
-    if (Version.parse(version) < Version.parse(minVersion)) {
-      showDialog(context: context, barrierDismissible: false, builder: (context) {
-        return AlertDialog(
-          title: Text(translate('main.updateAvailable')),
-          content: Text(translate('main.updateBody')),
-          actions: [
-            TextButton(
+  void _showDialog() {
+    showDialog(context: context, barrierDismissible: false, builder: (context) {
+      return AlertDialog(
+        title: Text(translate('main.updateAvailable')),
+        content: Text(translate('main.updateBody')),
+        actions: [
+          TextButton(
               child: Text(translate('main.accept').toUpperCase()),
               onPressed: () {
                 final appId = Platform.isAndroid ? 'com.doblevia.comunicacions' : '1636319799';
@@ -162,10 +151,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   mode: LaunchMode.externalApplication,
                 );
               }
-            )
-          ],
-        );
-      });
+          )
+        ],
+      );
+    });
+  }
+
+  void _getMinVersion() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    String minVersion = await getMinVersion(context);
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String version = packageInfo.version;
+
+    if (Version.parse(version) < Version.parse(minVersion)) {
+      _showDialog();
     }
   }
 
@@ -221,6 +220,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     password = await getPassword();
   }
 
+  void _showScaffoldMessage(e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Catch: $e'), backgroundColor: Colors.red),
+    );
+  }
+
   void _getChildren() async {
     try {
       ChildResponse childResponse = await getChildren(context);
@@ -236,9 +241,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Catch: $e'), backgroundColor: Colors.red),
-      );
+      _showScaffoldMessage(e);
     }
 
     bool r = await getRememberCard();
@@ -252,6 +255,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   void _changeMonth() async {
     try {
       setState(() => _calendarLoading = true);
+
+      if (_services[_selectedService].ncTieneFechaUnica) {
+        _monthShowing = _singleDate.month;
+        _yearShowing = _singleDate.year;
+      }
 
       CalendarResponse response = await getCalendar(context, _children[_selectedChild].childCode!, _services[_selectedService].serviceCode, _monthShowing.toString(), _yearShowing.toString());
       if (response.limitTime != null) {
@@ -269,6 +277,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         response.bookedDays?.forEach((element) {
           booked.add(DateTime.parse(element.ncFechaServicio!).day);
         });
+        setState(() => _bookedDays = booked.length);
 
         DateTime now = DateTime.now();
 
@@ -329,9 +338,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       }
     } catch (e) {
       if (kDebugMode) debugPrint('Catch: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Catch: $e'), backgroundColor: Colors.red),
-      );
+      _showScaffoldMessage(e);
     }
   }
 
@@ -740,7 +747,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     String initialUrl = '${Constants.redirectionBase}/login?u=$username&p=$password';
 
-    return WillPopScope(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (b) async {
+        if (await _webViewController.canGoBack()) {
+          _webViewController.goBack();
+        } else {
+          _webViewController.loadUrl(initialUrl);
+        }
+        return;
+      },
       child: Stack(alignment: Alignment.center, children: [
         username == '' ? const CircularProgressIndicator() : WebView(
           initialUrl: initialUrl,
@@ -786,15 +802,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         ),
         _webViewLoading ? Container(color: Colors.white38, child: const Center(child: CircularProgressIndicator())) : Container(),
         _downloading ? Container(color: Colors.white38, child: Center(child: CircularProgressIndicator(value: _progress))) : Container(),
-      ]),
-      onWillPop: () async {
-        if (await _webViewController.canGoBack()) {
-          _webViewController.goBack();
-        } else {
-          _webViewController.loadUrl(initialUrl);
-        }
-        return false;
-      }
+      ])
     );
   }
 
@@ -1140,6 +1148,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       _selectedDates.removeRange(0, _selectedDates.length);
                       _monthShowing = DateTime.now().month;
                     });
+
+                    if (_services[_selectedService].ncTieneFechaUnica) {
+                      _singleDate = DateTime.parse(_services[_selectedService].ncFechaUnica!);
+                    }
+                    setState(() {});
+
                     _changeMonth();
                   }
                 }
@@ -1154,9 +1168,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             const SizedBox(height: 24),
 
             Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(translate(_selectedDates.length > 1 ? 'sporadic.dates' : 'sporadic.date'), style: titleStyle),
+              Text(translate(_services.isEmpty ? 'sporadic.date' : _services[_selectedService].ncTieneFechaUnica ? 'sporadic.date' : _selectedDates.length > 1 ? 'sporadic.dates' : 'sporadic.date'), style: titleStyle),
               const SizedBox(width: 8),
-              _selectedDates.isEmpty ? Container() : Container(
+              _services.isEmpty ? Container() : (_selectedDates.isEmpty || _services[_selectedService].ncTieneFechaUnica) ? Container() : Container(
                 decoration: const BoxDecoration(
                   color: AppColors.primary,
                   borderRadius: BorderRadius.all(Radius.circular(20))
@@ -1167,7 +1181,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               )
             ]),
             const SizedBox(height: 8),
-            GestureDetector(
+            _services.isEmpty ? Container() : _services[_selectedService].ncTieneFechaUnica ? Text('${weekDay(_singleDate.weekday)}, ${_singleDate.day} ${month(_singleDate.month).startsWith(RegExp(r'[aeiou]')) ? 'd\'' : 'de '}${month(_singleDate.month)}') : GestureDetector(
               onTap: () => _services.isEmpty ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(translate('sporadic.missingData')))) : setState(() => _showCalendar = true),
               child: _selectedDates.isEmpty
                   ? Wrap(children: [
@@ -1190,6 +1204,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                   ])
             ),
             const SizedBox(height: 24),
+
+            _services.isEmpty ? Container() : _services[_selectedService].ncTieneFechaUnica ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Text(translate('sporadic.tickets'), style: titleStyle),
+                Text(' (${translate('sporadic.alreadyPurchased')}: $_bookedDays)'),
+              ]),
+              const SizedBox(height: 8),
+              Row(children: [
+                IconButton(onPressed: _selectedDates.isNotEmpty ? () => setState(() => _selectedDates.removeLast()) : null, icon: const Icon(Icons.remove)),
+                Text('${_selectedDates.length}'),
+                IconButton(onPressed: () => setState(() => _selectedDates.add(_singleDate)), icon: const Icon(Icons.add)),
+              ]),
+              const SizedBox(height: 24),
+            ]) : Container(),
 
             Text(translate('sporadic.import'), style: titleStyle),
             _services.isNotEmpty && _selectedService != -1 ? Text(
@@ -1325,7 +1353,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                       },
                       child: const Icon(Icons.arrow_back_ios_sharp),
                     ),
-                    Text('${capitalize(month(_monthShowing))} $_yearShowing', style: Theme.of(context).textTheme.headline6),
+                    Text('${capitalize(month(_monthShowing))} $_yearShowing', style: Theme.of(context).textTheme.titleLarge),
                     GestureDetector(
                       onTap: () {
                         if (_monthShowing == 12) {
@@ -1435,10 +1463,11 @@ class _ArchivePage extends State<ArchivePage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (b) async {
         Navigator.pop(context, [_archived, _notifications]);
-        return true;
+        return;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -1718,89 +1747,3 @@ Widget _customDialog(void Function() close, Widget content) {
   );
 }
 
-
-/*
-class _SineCurve extends Curve {
-  const _SineCurve({this.count = 3.0});
-  final double count;
-
-  // 2. override transformInternal() method
-  @override
-  double transformInternal(double t) {
-    return sin(count * 2 * pi * t);
-  }
-}
-
-abstract class _AnimationControllerState<T extends StatefulWidget>
-    extends State<T> with SingleTickerProviderStateMixin {
-  _AnimationControllerState(this.animationDuration);
-  final Duration animationDuration;
-  late final animationController = AnimationController(
-      vsync: this,
-      duration: animationDuration
-  );
-
-  @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
-  }
-}
-
-class _ShakeWidget extends StatefulWidget {
-  const _ShakeWidget({
-    Key? key,
-    required this.child,
-  }) : super(key: key);
-  final Widget child;
-
-  @override
-  _ShakeWidgetState createState() => _ShakeWidgetState();
-}
-
-class _ShakeWidgetState extends _AnimationControllerState<_ShakeWidget> {
-  _ShakeWidgetState() : super(const Duration(milliseconds: 600));
-  late final Animation<double> _sineAnimation = Tween(
-    begin: 0.0,
-    end: 1.0,
-  ).animate(CurvedAnimation(
-    parent: animationController,
-    curve: const _SineCurve(count: 3.0),
-  ));
-
-  @override
-  void initState() {
-    super.initState();
-    animationController.addStatusListener(_updateStatus);
-  }
-
-  @override
-  void dispose() {
-    animationController.removeStatusListener(_updateStatus);
-    super.dispose();
-  }
-
-  void _updateStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      animationController.reset();
-    }
-  }
-
-  void shake() {
-    animationController.forward();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _sineAnimation,
-      child: widget.child,
-      builder: (context, child) {
-        return Transform.rotate(
-          angle: _sineAnimation.value * 0.3,
-          child: child,
-        );
-      },
-    );
-  }
-}*/

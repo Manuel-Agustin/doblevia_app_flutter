@@ -178,7 +178,7 @@ class _MyLoginPage extends State<MyLoginPage> {
         if (!mounted) return;
         String error = response.errorCode == '00005' ? translate('login.wrongData') : '${response.errorCode}: ${response.errorMsg}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: Colors.red),
+          SnackBar(content: Text('error: $error'), backgroundColor: Colors.red),
         );
       } else {
         if (!mounted) return;

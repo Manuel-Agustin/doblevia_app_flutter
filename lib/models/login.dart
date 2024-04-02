@@ -127,8 +127,7 @@ class GetNotificationsRequest {
     'ncAppVersion': ncAppVersion
   };
 
-  //String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token&ncAppVersion=$ncAppVersion';
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token&ncAppVersion=$ncAppVersion';
 }
 
 class ChildResponse {
@@ -268,17 +267,23 @@ class ServiceInfo {
   final String serviceCode;
   final String serviceName;
   final double servicePrice;
+  final bool ncTieneFechaUnica;
+  final String? ncFechaUnica;
 
   ServiceInfo({
     required this.serviceCode,
     required this.serviceName,
-    required this.servicePrice
+    required this.servicePrice,
+    required this.ncTieneFechaUnica,
+    this.ncFechaUnica
   });
 
   factory ServiceInfo.fromJson(Map<String, dynamic> json) => ServiceInfo(
       serviceCode: json['service_code'],
       serviceName: json['service_name'],
-      servicePrice: json['service_price']
+      servicePrice: json['service_price'],
+      ncTieneFechaUnica: json['ncTieneFechaUnica'] != 0,
+      ncFechaUnica: json['ncTieneFechaUnica'] != 0 ? json['ncFechaUnica'] : null
   );
 }
 

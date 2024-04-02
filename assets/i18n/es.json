@@ -108,6 +108,8 @@
     "day": "día",
     "comments": "Observaciones",
     "rememberCard": "Recordar los datos de tarjeta para futuras compras",
-    "usePreviousCard": "Utilizar los datos de tarjeta guardados"
+    "usePreviousCard": "Utilizar los datos de tarjeta guardados",
+    "tickets": "Tickets",
+    "alreadyPurchased":  "ya reservados"
   }
 }

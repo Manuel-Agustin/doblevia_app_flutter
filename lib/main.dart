@@ -121,6 +121,7 @@ class MyApp extends StatelessWidget {
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
         primarySwatch: MaterialColor(0xff559945, color),
+        useMaterial3: false,
         textTheme: GoogleFonts.poppinsTextTheme(),
       ),
       home: Material(child: isLoggedIn ? const MyHomePage() : const MyLoginPage()),
