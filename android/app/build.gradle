@@ -79,7 +79,8 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.7.10"
 
-    implementation files('../libs/sdkinapp-library.aar')
+    //implementation files('../libs/sdkinapp-library.aar')
+    implementation files('../libs/redsys-sdk-inApp-2.3.0.aar')
 
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.google.code.gson:gson:2.8.9'
