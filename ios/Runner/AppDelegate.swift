@@ -2,7 +2,7 @@ import UIKit
 import Flutter
 import TPVVInLibrary
 
-@UIApplicationMain
+@main
 @objc class AppDelegate: FlutterAppDelegate, WebViewPaymentResponseDelegate {
     
     func responsePaymentKO(response: (WebViewPaymentResponseKO)) {

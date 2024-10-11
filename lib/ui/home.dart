@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-//import 'dart:html' as html;
 import 'dart:io';
 import 'dart:math';
 
-import 'package:dio/dio.dart';
 import 'package:doblevia/functions/api.dart';
 import 'package:doblevia/models/redsys.dart';
 import 'package:doblevia/ui/login.dart';
@@ -17,11 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
-//import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:version/version.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../functions/preferences.dart';
@@ -40,12 +35,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
   List<NotificationInfo> _notifications = [];
   List<NotificationInfo> _archived = [];
-
-  late WebViewController _webViewController;
-  bool _webViewLoading = true;
-
-  bool _downloading = false;
-  double _progress = 0.0;
 
   static const platform = MethodChannel('com.doblevia.comunicacions/tpvv');
 
@@ -78,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   late TabController _tabController;
 
-  //final shakeKey = GlobalKey<_ShakeWidgetState>();
   late AnimationController _bellController;
   late Animation<Color?> _bellColor;
 
@@ -117,8 +105,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
     _firebaseInit();
 
-    _getNotifications();
     _getUserData();
+    _getNotifications();
     _getChildren();
 
     //_tabController.addListener(() => _animateBell());
@@ -215,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     return true;
   }
 
-  void _getUserData() async {
+  Future<void> _getUserData() async {
     username = await getUsername();
     password = await getPassword();
   }
@@ -321,18 +309,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
   }
 
   void _getServices(String childCode) async {
+    debugPrint('dvlog: getting services fot child $childCode');
     try {
       ServiceResponse response = await getServices(context, childCode);
+      debugPrint('dvlog: get services response: ${response.toString()}');
       List<ServiceInfo> services = [];
       response.services?.forEach((element) {
         services.addAll(element.services ?? []);
       });
-      //List<ServiceInfo> services = response.services?.services ?? [];
       _services.clear();
 
       setState(() {
         _services.addAll(services);
       });
+      debugPrint('dvlog: services count: ${_services.length}');
       if (services.isNotEmpty) {
         _changeMonth();
       }
@@ -437,17 +427,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           ],
         ),
         body: Stack(children: [
-          _webViewPage(),
-          /*TabBarView(
-            controller: _tabController,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              SizedBox(width: 0, height: 0, child: Container(color: Colors.green)),
-              //_webViewPage(),
-              Container(color: Colors.white, child: _bookingPage()),
-              Container(color: Colors.white, child: _notificationsPage()),
-            ]
-          ),*/
+          FutureBuilder(
+            future: _webViewPage(),
+            initialData: Container(),
+            builder: (BuildContext context, AsyncSnapshot<Widget> widget) {
+              return Container(child: widget.data);
+            }
+          ),
           _tabController.index == 0 ? Container()
           : _tabController.index == 1 ? Container(color: Colors.white, child: _bookingPage())
           : Container(color: Colors.white, child: _notificationsPage()),
@@ -505,7 +491,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                             //saveStringSharedPreferences('locale', globals.languageNotifier.value);
                             saveStringSharedPreferences(Constants.language, languageNotifier.value);
                             setState(() {});
-                            _webViewController.reload();
+                            //_webViewController.reload();
                           } else {
                             if (!mounted) return;
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -702,108 +688,28 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     );
   }
 
-  Widget _webViewPage() {
-    Future<void> downloadFile(String url) async {
-      Dio dio = Dio();
-      final Random random = Random();
-
-      if (kDebugMode) debugPrint('dvlog: permission requested');
-      //if (await Permission.manageExternalStorage.request().isGranted) {
-        String dirloc = (await getApplicationDocumentsDirectory()).path;
-        var randId = random.nextInt(10000);
-
-        try {
-          await dio.download(url, "$dirloc$randId.pdf",
-              onReceiveProgress: (receivedBytes, totalBytes) {
-                if (kDebugMode) debugPrint('dvlog: PROGRESS $receivedBytes/$totalBytes');
-                setState(() {
-                  _downloading = true;
-                  _progress = receivedBytes / totalBytes;
-                });
-              });
-        } catch (e) {
-          if (kDebugMode) print(e);
-        }
-
-        if (kDebugMode) debugPrint('dvlog: dowload completed');
-        setState(() {
-          _downloading = false;
-        });
-
-      //} else {
-      //  if (kDebugMode) debugPrint('dvlog: permission denied');
-      //}
+  Future<Widget> _webViewPage() async {
+    if (username == '') {
+      await _getUserData();
     }
 
-    JavascriptChannel toasterJavascriptChannel(BuildContext context) {
-      return JavascriptChannel(
-          name: 'Toaster',
-          onMessageReceived: (JavascriptMessage message) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(message.message)),
-            );
-          });
-    }
-
-    String initialUrl = '${Constants.redirectionBase}/login?u=$username&p=$password';
-
-    return PopScope(
+    return InAppWebViewPage(url: '${Constants.redirectionBase}/login?u=$username&p=$password', title: null);
+    /*return PopScope(
       canPop: false,
-      onPopInvoked: (b) async {
+      onPopInvokedWithResult: (b, d) async {
         if (await _webViewController.canGoBack()) {
           _webViewController.goBack();
         } else {
-          _webViewController.loadUrl(initialUrl);
+          _loadWebView();
         }
         return;
       },
       child: Stack(alignment: Alignment.center, children: [
-        username == '' ? const CircularProgressIndicator() : WebView(
-          initialUrl: initialUrl,
-          javascriptMode: JavascriptMode.unrestricted,
-          onWebViewCreated: (WebViewController webViewController) {
-            debugPrint('web view created');
-            _webViewController = webViewController;
-          },
-          onProgress: (progress) {
-            debugPrint('progress: $progress');
-            setState(() {
-              _webViewLoading = progress < 100;
-            });
-          },
-          javascriptChannels: <JavascriptChannel>{
-            toasterJavascriptChannel(context),
-          },
-          navigationDelegate: (NavigationRequest request) async {
-            debugPrint('navigation request: ${request.url}');
-            if (request.url.endsWith('.pdf')) {
-              if (kDebugMode) debugPrint('dvlog: blocking navigation to $request}');
-              if (Platform.isAndroid) {
-                if (!await launchUrl(Uri.parse(request.url), mode: LaunchMode.externalApplication)) {
-                  throw 'Could not launch ${request.url}';
-                }
-              } else {
-                downloadFile(request.url);
-              }
-              return NavigationDecision.prevent;
-            }
-            if (kDebugMode) debugPrint('dvlog: allowing navigation to $request');
-            return NavigationDecision.navigate;
-          },
-          onPageStarted: (String url) {
-            debugPrint('Page started loading: $url');
-          },
-          onPageFinished: (String url) {
-            debugPrint('Page finished loading: $url');
-          },
-          gestureNavigationEnabled: true,
-          backgroundColor: Colors.white,
-          zoomEnabled: false,
-        ),
-        _webViewLoading ? Container(color: Colors.white38, child: const Center(child: CircularProgressIndicator())) : Container(),
+        username == '' ? const CircularProgressIndicator() : WebViewWidget(controller: _webViewController),
+        _webViewLoading ? Container(color: Colors.white38, child: Center(child: CircularProgressIndicator(value: _webViewProgress * 1.0))) : Container(),
         _downloading ? Container(color: Colors.white38, child: Center(child: CircularProgressIndicator(value: _progress))) : Container(),
       ])
-    );
+    );*/
   }
 
   Widget _bookingPage() {
@@ -971,7 +877,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       );
     }
 
-    bool formFilled() => _children.isNotEmpty && _services.isNotEmpty && _selectedChild != -1 && _selectedService != -1 && _children[_selectedChild].childCode != null && _services.isNotEmpty && (_services[_selectedService].servicePrice * _selectedDates.length) != 0.0 && _conditionsAccepted;
+    bool formFilled() {
+      if (_children.isEmpty) return false;
+      if (_services.isEmpty) return false;
+      if (_selectedChild == -1) return false;
+      if (_selectedService == -1) return false;
+      if (_children[_selectedChild].childCode == null) return false;
+      if (!_conditionsAccepted) return false;
+
+      if (_services[_selectedService].ncMostrarCalendario) {
+        if (_selectedDates.isEmpty) return false;
+      }
+
+      return true;
+    }
 
     Future<void> doPlatformSpecificStuff() async {
       setState(() => _loading = true);
@@ -1011,7 +930,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         //String paymentType = _rememberCard ? TPVVConstants.PAYMENT_TYPE_AUTHENTICATION : TPVVConstants.PAYMENT_TYPE_NORMAL;
         String paymentType = TPVVConstants.PAYMENT_TYPE_NORMAL;
         String orderCode = "${childCode.substring(childCode.length - 4)}${DateTime.now().millisecondsSinceEpoch.toRadixString(36)}";
-        double totalPrice = _services[_selectedService].servicePrice * _selectedDates.length;
+
+        ServiceInfo service = _services[_selectedService];
+        double totalPrice = service.ncMostrarCalendario ? (service.servicePrice * _selectedDates.length) : service.servicePrice;
         double amount = totalPrice * (Platform.isAndroid ? 100 : 100); //precio en centimos en android, y en euros en ios
         String currency = "978";
         String productDescription = _services[_selectedService].serviceName;
@@ -1160,35 +1081,38 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             ),
             const SizedBox(height: 24),
 
-            Text(translate('sporadic.price'), style: titleStyle),
-            _services.isNotEmpty && _selectedService != -1 ? Text(
-              '${(_services[_selectedService].servicePrice).toStringAsFixed(2).replaceFirstMapped('.', (match) => ',')}€/${translate('sporadic.day')}',
-              style: AppFonts.h4,
-            ) : Container(),
-            const SizedBox(height: 24),
+            _services.isEmpty || _selectedService == -1 || !_services[_selectedService].ncMostrarCalendario ? Container() : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(translate('sporadic.price'), style: titleStyle),
+              _services.isNotEmpty && _selectedService != -1 ? Text(
+                '${(_services[_selectedService].servicePrice).toStringAsFixed(2).replaceFirstMapped('.', (match) => ',')}€/${translate('sporadic.day')}',
+                style: AppFonts.h4,
+              ) : Container(),
+              const SizedBox(height: 24),
+            ],),
 
-            Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(translate(_services.isEmpty ? 'sporadic.date' : _services[_selectedService].ncTieneFechaUnica ? 'sporadic.date' : _selectedDates.length > 1 ? 'sporadic.dates' : 'sporadic.date'), style: titleStyle),
-              const SizedBox(width: 8),
-              _services.isEmpty ? Container() : (_selectedDates.isEmpty || _services[_selectedService].ncTieneFechaUnica) ? Container() : Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.all(Radius.circular(20))
-                ),
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                child: Text('${_selectedDates.length}', style: const TextStyle(color: Colors.white, fontSize: 11)),
-              )
-            ]),
-            const SizedBox(height: 8),
-            _services.isEmpty ? Container() : _services[_selectedService].ncTieneFechaUnica ? Text('${weekDay(_singleDate.weekday)}, ${_singleDate.day} ${month(_singleDate.month).startsWith(RegExp(r'[aeiou]')) ? 'd\'' : 'de '}${month(_singleDate.month)}') : GestureDetector(
-              onTap: () => _services.isEmpty ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(translate('sporadic.missingData')))) : setState(() => _showCalendar = true),
-              child: _selectedDates.isEmpty
-                  ? Wrap(children: [
+            _services.isEmpty || _selectedService == -1 || !_services[_selectedService].ncMostrarCalendario ? Container() : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(translate(_services.isEmpty ? 'sporadic.date' : _services[_selectedService].ncTieneFechaUnica ? 'sporadic.date' : _selectedDates.length > 1 ? 'sporadic.dates' : 'sporadic.date'), style: titleStyle),
+                const SizedBox(width: 8),
+                _services.isEmpty ? Container() : (_selectedDates.isEmpty || _services[_selectedService].ncTieneFechaUnica) ? Container() : Container(
+                  decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.all(Radius.circular(20))
+                  ),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                  child: Text('${_selectedDates.length}', style: const TextStyle(color: Colors.white, fontSize: 11)),
+                )
+              ]),
+              const SizedBox(height: 8),
+              _services.isEmpty ? Container() : _services[_selectedService].ncTieneFechaUnica ? Text('${weekDay(_singleDate.weekday)}, ${_singleDate.day} ${month(_singleDate.month).startsWith(RegExp(r'[aeiou]')) ? 'd\'' : 'de '}${month(_singleDate.month)}') : GestureDetector(
+                  onTap: () => _services.isEmpty ? ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(translate('sporadic.missingData')))) : setState(() => _showCalendar = true),
+                  child: _selectedDates.isEmpty
+                      ? Wrap(children: [
                     Container(
                       decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.all(Radius.circular(6)),
-                        border: Border.all(color: AppColors.primary, width: 2)
+                          borderRadius: const BorderRadius.all(Radius.circular(6)),
+                          border: Border.all(color: AppColors.primary, width: 2)
                       ),
                       padding: const EdgeInsets.all(6),
                       child: Row(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -1202,8 +1126,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                     const SizedBox(width: 32),
                     const Icon(Icons.edit, size: 22, color: AppColors.primary)
                   ])
-            ),
-            const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
+            ],),
 
             _services.isEmpty ? Container() : _services[_selectedService].ncTieneFechaUnica ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(children: [
@@ -1220,10 +1145,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             ]) : Container(),
 
             Text(translate('sporadic.import'), style: titleStyle),
-            _services.isNotEmpty && _selectedService != -1 ? Text(
-              '${(_services[_selectedService].servicePrice * _selectedDates.length).toStringAsFixed(2).replaceFirstMapped('.', (match) => ',')}€',
-              style: AppFonts.h4,
-            ) : Container(),
+            _services.isNotEmpty && _selectedService != -1
+                ? Text(
+                  _services[_selectedService].ncMostrarCalendario
+                      ? '${(_services[_selectedService].servicePrice * _selectedDates.length).toStringAsFixed(2).replaceFirstMapped('.', (match) => ',')}€'
+                      : '${(_services[_selectedService].servicePrice).toStringAsFixed(2).replaceFirstMapped('.', (match) => ',')}€',
+                  style: AppFonts.h4,
+                )
+                : Container(),
 
             const SizedBox(height: 24),
 
@@ -1262,7 +1191,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         style: const TextStyle(color: AppColors.blue),
                         recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.conditionsURL'), isOnline: true, title: translate('sporadic.conditions')))
+                            MaterialPageRoute(builder: (context) => InAppWebViewPage(url: translate('sporadic.conditionsURL'), title: translate('sporadic.conditions')))
                         ),
                       ),
                       const TextSpan(text: ', '),
@@ -1271,7 +1200,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         style: const TextStyle(color: AppColors.blue),
                         recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.privacyPolicyURL'), isOnline: true, title: translate('sporadic.privacyPolicy')))
+                            MaterialPageRoute(builder: (context) => InAppWebViewPage(url: translate('sporadic.privacyPolicyURL'), title: translate('sporadic.privacyPolicy')))
                         ),
                       ),
                       TextSpan(text: translate('sporadic.and')),
@@ -1280,7 +1209,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
                         style: const TextStyle(color: AppColors.blue),
                         recognizer: TapGestureRecognizer()..onTap = () => Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => MyWebViewPage(url: translate('sporadic.cookiesPolicyURL'), isOnline: true, title: translate('sporadic.cookiesPolicy')))
+                            MaterialPageRoute(builder: (context) => InAppWebViewPage(url: translate('sporadic.cookiesPolicyURL'), title: translate('sporadic.cookiesPolicy')))
                         ),
                       ),
                     ],
@@ -1294,7 +1223,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
               ),
               child: ElevatedButton(
                 onPressed: formFilled() ? doPlatformSpecificStuff : null,
-                style: ButtonStyle(backgroundColor: MaterialStateProperty.all(AppColors.secondary)),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.all(AppColors.secondary)),
                 child: Text(translate('sporadic.buy').toUpperCase(), style: const TextStyle(color: Colors.white)),
               ),
             ),

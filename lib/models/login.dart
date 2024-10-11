@@ -208,7 +208,7 @@ class ChildCodeRequest {
   //String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode';
 }
 
-class ServiceResponse {
+class  ServiceResponse {
   final String errorCode;
   final String errorMsg;
   final List<Service>? services;
@@ -269,13 +269,15 @@ class ServiceInfo {
   final double servicePrice;
   final bool ncTieneFechaUnica;
   final String? ncFechaUnica;
+  final bool ncMostrarCalendario;
 
   ServiceInfo({
     required this.serviceCode,
     required this.serviceName,
     required this.servicePrice,
     required this.ncTieneFechaUnica,
-    this.ncFechaUnica
+    this.ncFechaUnica,
+    required this.ncMostrarCalendario
   });
 
   factory ServiceInfo.fromJson(Map<String, dynamic> json) => ServiceInfo(
@@ -283,7 +285,8 @@ class ServiceInfo {
       serviceName: json['service_name'],
       servicePrice: json['service_price'],
       ncTieneFechaUnica: json['ncTieneFechaUnica'] != 0,
-      ncFechaUnica: json['ncTieneFechaUnica'] != 0 ? json['ncFechaUnica'] : null
+      ncFechaUnica: json['ncTieneFechaUnica'] != 0 ? json['ncFechaUnica'] : null,
+      ncMostrarCalendario: json['ncMostrarCalendario'] != 0,
   );
 }
 

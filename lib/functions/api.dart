@@ -147,14 +147,7 @@ Future<ServiceResponse> getServices(BuildContext context, String childCode) asyn
 
   final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
 
-  if (kDebugMode) {
-    print('REQUEST: ');
-    print(response.request);
-    print('RESPONSE: ');
-    print(response.statusCode);
-    print(response.body.toString());
-    //print(response.headers.toString());
-  }
+  debugPrint('dvlog: response: ${response.body.toString()}');
 
   if (response.statusCode == 200) {
     if (response.body.isNotEmpty) {
