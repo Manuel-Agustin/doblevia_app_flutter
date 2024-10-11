@@ -35,7 +35,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
   List<NotificationInfo> _notifications = [];
   List<NotificationInfo> _archived = [];
-  bool test = true;
+  bool test2 = true;
 
   static const platform = MethodChannel('com.doblevia.comunicacions/tpvv');
 
