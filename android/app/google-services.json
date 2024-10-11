@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "870693256438",
+    "project_id": "doble-via-1bae2",
+    "storage_bucket": "doble-via-1bae2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870693256438:android:ed71b4fe57fb9d8717c0d7",
+        "android_client_info": {
+          "package_name": "com.doblevia.comunicacio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "870693256438-i903pol277anagv73vlt9ck06mpt0se9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCByaS5dkyo0zG3o5Jk2hIDncgJ_T_LOy4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870693256438-i903pol277anagv73vlt9ck06mpt0se9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "870693256438-9nvgetecn7fc13c6okoa7g2g8foahssl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.doblevia.comunicacio"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:870693256438:android:f3c479672872ef2b17c0d7",
+        "android_client_info": {
+          "package_name": "com.doblevia.comunicacions"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "870693256438-i903pol277anagv73vlt9ck06mpt0se9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCByaS5dkyo0zG3o5Jk2hIDncgJ_T_LOy4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "870693256438-i903pol277anagv73vlt9ck06mpt0se9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "870693256438-9nvgetecn7fc13c6okoa7g2g8foahssl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.doblevia.comunicacio"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
