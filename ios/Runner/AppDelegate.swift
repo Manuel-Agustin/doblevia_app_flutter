@@ -74,6 +74,8 @@ import TPVVInLibrary
                       let merchantData = args["merchantData"] as? String,
                       let params = args["params"] as? [String:String]? {
                       
+                      let dataUtf16 = String(data: merchantData.data(using: .utf8)!, encoding: .utf8);
+                      
                       self?.res = result
                       
                       TPVVConfiguration.shared.appLicense = license
@@ -83,7 +85,7 @@ import TPVVInLibrary
                       TPVVConfiguration.shared.appCurrency = currency
                       TPVVConfiguration.shared.appMerchantConsumerLanguage = language
                       TPVVConfiguration.shared.appMerchantURL = merchantUrl
-                      TPVVConfiguration.shared.appMerchantData = merchantData
+                      TPVVConfiguration.shared.appMerchantData = dataUtf16!
 
                       let wpView = WebViewPaymentController(orderNumber: orderCode, amount: amount / 100, productDescription: productDescription, transactionType: TransactionType.normal, identifier: merchantId, extraParams: params)
                       wpView.delegate = self

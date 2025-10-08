@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -323,10 +322,7 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
         },
         onContextMenuActionItemClicked: (contextMenuItemClicked) async {
           var id = contextMenuItemClicked.id;
-          debugPrint("dvlog: onContextMenuActionItemClicked: " +
-              id.toString() +
-              " " +
-              contextMenuItemClicked.title);
+          debugPrint("dvlog: onContextMenuActionItemClicked: $id ${contextMenuItemClicked.title}");
         });
 
     pullToRefreshController = kIsWeb ||
@@ -424,7 +420,7 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
                         }
                         setState(() {
                           this.progress = progress / 100;
-                          urlController.text = this.url;
+                          urlController.text = url;
                         });
                       },
                       onUpdateVisitedHistory: (controller, url, isReload) {

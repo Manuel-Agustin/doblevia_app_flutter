@@ -31,15 +31,6 @@ public class MainActivity extends FlutterActivity {
             (call, result) -> {
                 // This method is invoked on the main thread.
                 switch (call.method) {
-                    case "getBatteryLevel":
-                        int batteryLevel = getBatteryLevel();
-
-                        if (batteryLevel != -1) {
-                            result.success(batteryLevel);
-                        } else {
-                            result.error("UNAVAILABLE", "Battery level not available.", null);
-                        }
-                        break;
                     case "redsys":
                         final String license = call.argument("license");
 

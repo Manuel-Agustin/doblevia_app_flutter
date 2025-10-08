@@ -75,7 +75,7 @@ class App {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
+  const MyApp({super.key, required this.isLoggedIn});
   final bool isLoggedIn;
 
   static const Color base = AppColors.secondary;

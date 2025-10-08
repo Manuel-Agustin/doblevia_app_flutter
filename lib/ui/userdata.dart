@@ -9,7 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'login.dart';
 
 class UserDataPage extends StatefulWidget {
-  const UserDataPage({Key? key}) : super(key: key);
+  const UserDataPage({super.key});
 
   @override
   State<UserDataPage> createState() => _UserDataPage();

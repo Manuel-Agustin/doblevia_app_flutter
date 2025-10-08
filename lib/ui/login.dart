@@ -12,7 +12,7 @@ import '../globals.dart';
 import 'home.dart';
 
 class MyLoginPage extends StatefulWidget {
-  const MyLoginPage({Key? key}) : super(key: key);
+  const MyLoginPage({super.key});
 
   @override
   State<MyLoginPage> createState() => _MyLoginPage();

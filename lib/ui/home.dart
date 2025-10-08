@@ -35,7 +35,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, TickerProviderStateMixin {
   List<NotificationInfo> _notifications = [];
   List<NotificationInfo> _archived = [];
-  bool test2 = true;
 
   static const platform = MethodChannel('com.doblevia.comunicacions/tpvv');
 
@@ -394,7 +393,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Image.asset('assets/images/dobleviaescoles_white.png', height: 50),
+          title: Image.asset('assets/images/escoles_blanco.png', height: 50),
           bottom: TabBar(
             controller: _tabController,
             tabs: [
@@ -945,7 +944,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           appCode: Constants.appCode,
           f: f,
           username: username,
-          password: password,
+          password: password, // utf8.encode(password).toString(),
           sign: sign(f, username),
           childCode: childCode,
           serviceCode: _services[_selectedService].serviceCode,
@@ -956,73 +955,49 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         debugPrint('DVLOG MERCHANT URL: ${Constants.merchantUrl}');
         debugPrint('DVLOG MERCHANT DATA: ${json.encode(data.toJson())}');
 
-        final String result = await platform.invokeMethod('redsys', {
-          "license": license,
-          "fuc": fuc,
-          "terminal": terminal,
-          "merchantId": merchantId,
-          "paymentType": paymentType,
-          "orderCode": orderCode,
-          "amount": amount,
-          "currency": currency,
-          "productDescription": productDescription,
-          "params": params,
-          "language": language,
-          "merchantUrl": Constants.merchantUrl,
-          "merchantData": json.encode(data.toJson())
-        });
-        if (!mounted) return;
-        if (kDebugMode) debugPrint('DVLOG REDSYS RESPONSE');
-        if (kDebugMode) debugPrint('DVLOG $result');
-        RedsysResponse redsysResponse;
-        /*if (Platform.isIOS) {
-          redsysResponse = RedsysResponse.fromJson(jsonDecode('{$result}'));
-        } else {*/
-        final res = json.decode(result.substring(result.indexOf('{'))) as Map<String, dynamic>;
-          redsysResponse = RedsysResponse.fromJson(res);
-        //}
-        if (kDebugMode) debugPrint('authorisation code: ${redsysResponse.authorisationCode}');
-        if (kDebugMode) debugPrint('DVLOG REDSYS RESPONSE Merchant ID: ${redsysResponse.identifier}');
-        saveStringSharedPreferences(Constants.merchantId, redsysResponse.identifier);
+        try {
+          final String result = await platform.invokeMethod('redsys', {
+            "license": license,
+            "fuc": fuc,
+            "terminal": terminal,
+            "merchantId": merchantId,
+            "paymentType": paymentType,
+            "orderCode": orderCode,
+            "amount": amount,
+            "currency": currency,
+            "productDescription": productDescription,
+            "params": params,
+            "language": language,
+            "merchantUrl": Constants.merchantUrl,
+            "merchantData": json.encode(data.toJson())
+          });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(translate('sporadic.purchaseSuccessful'))),
-        );
+          debugPrint('DVLOG REDSYS RESPONSE');
+          debugPrint('DVLOG $result');
+          final res = json.decode(result.substring(result.indexOf('{'))) as Map<String, dynamic>;
+          RedsysResponse redsysResponse = RedsysResponse.fromJson(res);
+          debugPrint('authorisation code: ${redsysResponse.authorisationCode}');
+          debugPrint('DVLOG REDSYS RESPONSE Merchant ID: ${redsysResponse.identifier}');
+          saveStringSharedPreferences(Constants.merchantId, redsysResponse.identifier);
 
-        _firstTimeRememberingCard = await isFirstTimeRememberingCard();
-        setState(() {
-          _selectedDates.removeRange(0, _selectedDates.length);
-          _monthShowing = DateTime.now().month;
-          _commentsController.text = '';
-        });
-        _changeMonth();
-        _tabController.animateTo(0);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(translate('sporadic.purchaseSuccessful'))),
+          );
 
-        //Ya no se llama a book_service, se usa el merchantUrl para que el banco informe directamente a la plataforma
-        /*try {
-          BookServiceResponse bookServiceResponse = await bookService(context, childCode, _services[_selectedService].serviceCode, redsysResponse.authorisationCode, dates, _commentsController.text, true);
-          if (bookServiceResponse.success == '1') {
-            if (!mounted) return;
-            setState(() {
-              _selectedDates.removeRange(0, _selectedDates.length);
-              _monthShowing = DateTime.now().month;
-            });
-            _changeMonth();
-            _tabController.animateTo(0);
-            //_webViewController.loadUrl('${Constants.redirectionBase}/albarans');
-            setState(() => _loading = false);
-          } else {
-            if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Error code: ${bookServiceResponse.errorCode}, error message: ${bookServiceResponse.errorMsg}'), backgroundColor: Colors.red),
-            );
-          }
+          _firstTimeRememberingCard = await isFirstTimeRememberingCard();
+          setState(() {
+            _selectedDates.removeRange(0, _selectedDates.length);
+            _monthShowing = DateTime.now().month;
+            _commentsController.text = '';
+          });
+          _changeMonth();
+          _tabController.animateTo(0);
         } catch (e) {
-          debugPrint('Catch: $e');
-        }*/
+          debugPrint('DVLOG: CATCH ERROR: $e');
+        }
 
       } on PlatformException catch (e) {
-        if (kDebugMode) debugPrint("Error: '${e.message}'");
+        debugPrint("DVLOG: Platform exception: '${e.message}'");
       }
 
       setState(() => _loading = false);
@@ -1348,7 +1323,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 class ArchivePage extends StatefulWidget {
   final List<NotificationInfo> archived;
   final List<NotificationInfo> notifications;
-  const ArchivePage({Key? key, required this.archived, required this.notifications}) : super(key: key);
+  const ArchivePage({super.key, required this.archived, required this.notifications});
 
   @override
   State<ArchivePage> createState() => _ArchivePage();
