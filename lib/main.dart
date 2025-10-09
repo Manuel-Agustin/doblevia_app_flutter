@@ -16,7 +16,6 @@ import 'package:doblevia/globals.dart' as globals;
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
 
   if (kDebugMode) debugPrint("Handling a background message: ${message.messageId}");
 }
@@ -28,10 +27,26 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    if (kDebugMode) {
+      print("Firebase ya estaba inicializado: $e");
+    }
+  }
+
+  final messaging = FirebaseMessaging.instance;
+
+  // Solicitar permiso para notificaciones
+  await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
   );
-  final String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+  final String? fcmToken = await messaging.getToken();
   if (kDebugMode) debugPrint('DVLOG: fcmToken = $fcmToken');
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -66,6 +81,17 @@ void main() async {
   if (kDebugMode) {
     debugPrint('DVLOG: is logged? ${isLoggedIn ? 'yes' : 'no'}');
   }
+
+  // Handler para mensajes que abren la app desde background/terminated
+  FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
+    if (message != null) {
+      if (kDebugMode) {
+        debugPrint('Mensaje que abrió la app desde background/terminated: ${message.notification?.title}');
+        debugPrint('Datos del mensaje: ${message.data}');
+      }
+      // Aquí puedes navegar a una pantalla específica o procesar el mensaje
+    }
+  });
 
   runApp(LocalizedApp(delegate, MyApp(isLoggedIn: isLoggedIn)));
 }

@@ -1,0 +1,11 @@
+framework module TPVVInLibrary {
+  umbrella header "TPVVInLibrary.h"
+
+  export *
+  module * { export * }
+}
+
+module TPVVInLibrary.Swift {
+    header "TPVVInLibrary-Swift.h"
+    requires objc
+}

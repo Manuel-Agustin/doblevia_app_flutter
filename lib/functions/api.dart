@@ -343,7 +343,7 @@ Future<NotificationResponse> getNotifications(BuildContext context) async {
 
     print('RESPONSE: ');
     print(response.statusCode);
-    print(response.body.toString());
+    //print(response.body.toString());
   }
 
   if (response.statusCode == 200) {
