@@ -22,10 +22,13 @@ saveIntSharedPreferences(String key, int value) async {
   debugPrint('saved $value');
 }
 
-deleteAllPreferences() {
-  saveIntSharedPreferences(Constants.isLoggedIn, 0);
+deleteAllPreferences() async {
+  /*saveIntSharedPreferences(Constants.isLoggedIn, 0);
   saveStringSharedPreferences(Constants.username, '');
-  saveStringSharedPreferences(Constants.password, '');
+  saveStringSharedPreferences(Constants.password, '');*/
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+  debugPrint('Todas las SharedPreferences han sido eliminadas.');
 }
 
 Future<bool> isLogged() async {
