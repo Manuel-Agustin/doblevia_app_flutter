@@ -303,8 +303,6 @@ Future<BasicSuccessResponse> userSetLanguage(BuildContext context, String langua
 Future<NotificationResponse> getNotifications(BuildContext context) async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-  //TODO añadir ncPlatform y ncPlatformVersion
-
   String appCode = Constants.appCode;
   String f = FunctionNames.getNotifications;
   String username = await getUsername();
