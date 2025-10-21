@@ -35,6 +35,7 @@ class Constants {
   static String merchantId_old = 'MERCHANT_ID';
   static String merchantId = 'MERCHANT_ID_2';
   static String merchantUrl = '${apiUrl}respuestatransaccion.ashx';
+  static String newMerchantUrl = '${apiUrl}respuestatransaccion_base64.ashx';
   static String rememberCard = 'REMEMBER_CARD';
   static String firstTimeRememberingCard = 'FIRST_TIME_REMEMBERING_CARD';
 }

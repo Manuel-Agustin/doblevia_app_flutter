@@ -303,11 +303,15 @@ Future<BasicSuccessResponse> userSetLanguage(BuildContext context, String langua
 Future<NotificationResponse> getNotifications(BuildContext context) async {
   PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
+  //TODO añadir ncPlatform y ncPlatformVersion
+
   String appCode = Constants.appCode;
   String f = FunctionNames.getNotifications;
   String username = await getUsername();
   String password = await getPassword();
   String token = await getToken();
+  String ncPlatform = Platform.operatingSystem;
+  String ncPlatformVersion = Platform.operatingSystemVersion;
   String ncAppVersion = packageInfo.version;
   debugPrint("NCLOG TOKEN: $token");
 
@@ -318,7 +322,9 @@ Future<NotificationResponse> getNotifications(BuildContext context) async {
     password: password,
     sign: sign(f, username),
     token: token,
-    ncAppVersion: ncAppVersion
+    ncAppVersion: ncAppVersion,
+    ncPlatform: ncPlatform,
+    ncPlatformVersion: ncPlatformVersion
   );
 
   if (kDebugMode) print('DVLOG: get_notifications request: ${json.encode(request.toGetString())}');

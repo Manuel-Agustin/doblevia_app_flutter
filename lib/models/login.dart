@@ -106,6 +106,8 @@ class GetNotificationsRequest {
   final String sign;
   final String token;
   final String ncAppVersion;
+  final String? ncPlatform;
+  final String? ncPlatformVersion;
 
   GetNotificationsRequest({
     required this.appCode,
@@ -114,7 +116,9 @@ class GetNotificationsRequest {
     required this.password,
     required this.sign,
     required this.token,
-    required this.ncAppVersion
+    required this.ncAppVersion,
+    required this.ncPlatform,
+    required this.ncPlatformVersion
   });
 
   Map<String, dynamic> toJson() => {
@@ -124,10 +128,12 @@ class GetNotificationsRequest {
     'password': password,
     'sign': sign,
     'notifications_token': token,
-    'ncAppVersion': ncAppVersion
+    'ncAppVersion': ncAppVersion,
+    'ncPlatform': ncPlatform,
+    'ncPlatformVersion': ncPlatformVersion,
   };
 
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token&ncAppVersion=$ncAppVersion';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&notifications_token=$token&ncAppVersion=$ncAppVersion&ncPlatform=$ncPlatform&ncPlatformVersion=$ncPlatformVersion';
 }
 
 class ChildResponse {

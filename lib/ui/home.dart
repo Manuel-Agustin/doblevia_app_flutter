@@ -944,7 +944,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           appCode: Constants.appCode,
           f: f,
           username: username,
-          password: password, // utf8.encode(password).toString(),
+          password: password,
           sign: sign(f, username),
           childCode: childCode,
           serviceCode: _services[_selectedService].serviceCode,
@@ -952,8 +952,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
           comments: _commentsController.text
         );
 
-        debugPrint('DVLOG MERCHANT URL: ${Constants.merchantUrl}');
-        debugPrint('DVLOG MERCHANT DATA: ${json.encode(data.toJson())}');
+        String jsonString = json.encode(data.toJson());
+        String base64String = base64Encode(utf8.encode(jsonString));
+
+        debugPrint('DVLOG MERCHANT URL: ${Constants.newMerchantUrl}');
+        debugPrint('DVLOG MERCHANT DATA: $jsonString');
+        debugPrint('DVLOG MERCHANT DATA BASE64: $base64String');
 
         try {
           final String result = await platform.invokeMethod('redsys', {
@@ -968,8 +972,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
             "productDescription": productDescription,
             "params": params,
             "language": language,
-            "merchantUrl": Constants.merchantUrl,
-            "merchantData": json.encode(data.toJson())
+            "merchantUrl": Constants.newMerchantUrl,
+            "merchantData": base64String
           });
 
           debugPrint('DVLOG REDSYS RESPONSE');
