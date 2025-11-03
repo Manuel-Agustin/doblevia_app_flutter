@@ -147,7 +147,8 @@ class _UserDataPage extends State<UserDataPage> {
               onPressed: () => setState(() => _showDialog = true),
               child: Text(translate('main.deleteAccount'), style: const TextStyle(color: AppColors.red))
             ),
-            Text('v. $_version', style: const TextStyle(color: AppColors.primary))
+            Text('v. $_version', style: const TextStyle(color: AppColors.primary)),
+            const SizedBox(height: 48)
           ])
         ]),
 

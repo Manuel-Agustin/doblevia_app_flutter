@@ -116,7 +116,7 @@ class _MyLoginPage extends State<MyLoginPage> {
                         onTap: () {
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => InAppWebViewPage(url: '${Constants.redirectionBase}/registre', title: translate('login.register')))
+                              MaterialPageRoute(builder: (context) => NoRefreshInAppWebViewPage(url: '${Constants.redirectionBase}/registre', title: translate('login.register')))
                           );
                         },
                         child: Text(translate('login.register'), style: const TextStyle(color: AppColors.secondary, fontSize: 14))

@@ -446,3 +446,170 @@ class _InAppWebViewPageState extends State<InAppWebViewPage> {
     await launchUrl(Uri.parse('$url?u=45641055Q&p=24GD87vb26\$61'));
   }
 }
+
+class NoRefreshInAppWebViewPage extends StatefulWidget {
+  const NoRefreshInAppWebViewPage({super.key, required this.url, required this.title});
+  final String url;
+  final String? title;
+
+  @override
+  State<NoRefreshInAppWebViewPage> createState() => _NoRefreshInAppWebViewPageState();
+}
+
+class _NoRefreshInAppWebViewPageState extends State<NoRefreshInAppWebViewPage> {
+  final GlobalKey webViewKey = GlobalKey();
+  WebViewEnvironment? webViewEnvironment;
+
+  InAppWebViewController? webViewController;
+  InAppWebViewSettings settings = InAppWebViewSettings(
+      isInspectable: kDebugMode,
+      mediaPlaybackRequiresUserGesture: false,
+      allowsInlineMediaPlayback: true,
+      iframeAllow: "camera; microphone",
+      iframeAllowFullscreen: true);
+
+  late ContextMenu contextMenu;
+  String url = "";
+  double progress = 0;
+  final urlController = TextEditingController();
+
+  void _getWebViewEnvironment() async {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+      final availableVersion = await WebViewEnvironment.getAvailableVersion();
+      assert(availableVersion != null,
+      'Failed to find an installed WebView2 runtime or non-stable Microsoft Edge installation.');
+
+      webViewEnvironment = await WebViewEnvironment.create(
+          settings: WebViewEnvironmentSettings(userDataFolder: 'custom_path'));
+    }
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      await InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _getWebViewEnvironment();
+
+    contextMenu = ContextMenu(
+        menuItems: [
+          ContextMenuItem(
+              id: 1,
+              title: "Special",
+              action: () async {
+                debugPrint("dvlog: Menu item Special clicked!");
+                debugPrint('dvlog: ${await webViewController?.getSelectedText()}');
+                await webViewController?.clearFocus();
+              })
+        ],
+        settings: ContextMenuSettings(hideDefaultSystemContextMenuItems: false),
+        onCreateContextMenu: (hitTestResult) async {
+          debugPrint("dvlog: onCreateContextMenu");
+          debugPrint('dvlog: ${hitTestResult.extra}');
+          debugPrint('dvlog: ${await webViewController?.getSelectedText()}');
+        },
+        onHideContextMenu: () {
+          debugPrint("onHideContextMenu");
+        },
+        onContextMenuActionItemClicked: (contextMenuItemClicked) async {
+          var id = contextMenuItemClicked.id;
+          debugPrint("dvlog: onContextMenuActionItemClicked: $id ${contextMenuItemClicked.title}");
+        });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+        appBar: widget.title == null ? null : AppBar(title: Text('${widget.title}')),
+        body: SafeArea(
+            child: Column(children: <Widget>[
+              Expanded(
+                child: Stack(
+                  children: [
+                    InAppWebView(
+                      key: webViewKey,
+                      webViewEnvironment: webViewEnvironment,
+                      initialUrlRequest:
+                      URLRequest(url: WebUri(widget.url)),
+                      initialUserScripts: UnmodifiableListView<UserScript>([]),
+                      initialSettings: settings,
+                      contextMenu: contextMenu,
+                      onWebViewCreated: (controller) async {
+                        webViewController = controller;
+                      },
+                      onLoadStart: (controller, url) async {
+                        setState(() {
+                          this.url = url.toString();
+                          urlController.text = this.url;
+                        });
+                      },
+                      onPermissionRequest: (controller, request) async {
+                        return PermissionResponse(
+                            resources: request.resources,
+                            action: PermissionResponseAction.GRANT);
+                      },
+                      shouldOverrideUrlLoading: (controller, navigationAction) async {
+                        debugPrint('dvlog: override url: ${navigationAction.request.url.toString()}');
+                        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+                          final shouldPerformDownload =
+                              navigationAction.shouldPerformDownload ?? false;
+                          final url = navigationAction.request.url;
+                          if (shouldPerformDownload && url != null) {
+                            await _downloadFile(url.toString());
+                            return NavigationActionPolicy.DOWNLOAD;
+                          }
+                        }
+                        return NavigationActionPolicy.ALLOW;
+                      },
+                      onDownloadStartRequest: (controller, downloadStartRequest) async {
+                        debugPrint(
+                            'dvlog: dowload request: ${downloadStartRequest
+                                .url.toString()}');
+                        await _downloadFile(
+                            downloadStartRequest.url.toString(),
+                            downloadStartRequest.suggestedFilename);
+                      },
+                      onLoadStop: (controller, url) async {
+                        setState(() {
+                          this.url = url.toString();
+                          urlController.text = this.url;
+                        });
+                      },
+                      onProgressChanged: (controller, progress) {
+                        setState(() {
+                          this.progress = progress / 100;
+                          urlController.text = url;
+                        });
+                      },
+                      onUpdateVisitedHistory: (controller, url, isReload) {
+                        setState(() {
+                          this.url = url.toString();
+                          urlController.text = this.url;
+                        });
+                      },
+                      onConsoleMessage: (controller, consoleMessage) {
+                        print(consoleMessage);
+                      },
+                    ),
+                    progress < 1.0
+                        ? LinearProgressIndicator(value: progress)
+                        : Container(),
+                  ],
+                ),
+              ),
+            ])));
+  }
+
+  Future<void> _downloadFile(String url, [String? filename]) async {
+    await launchUrl(Uri.parse('$url?u=45641055Q&p=24GD87vb26\$61'));
+  }
+}
