@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:doblevia/functions/api.dart';
 import 'package:doblevia/functions/preferences.dart';
 import 'package:doblevia/models/login.dart';
+import 'package:doblevia/ui/signup.dart';
 import 'package:doblevia/ui/webview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _MyLoginPage extends State<MyLoginPage> {
   void _loadToken() async {
     String t = await getToken();
     setState(() => token = t);
-    print('DVLOG: token: $token');
+    debugPrint('DVLOG: token: $token');
   }
 
   @override
@@ -116,7 +117,7 @@ class _MyLoginPage extends State<MyLoginPage> {
                         onTap: () {
                           Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => NoRefreshInAppWebViewPage(url: '${Constants.redirectionBase}/registre', title: translate('login.register')))
+                              MaterialPageRoute(builder: (context) => const MySignupPage())
                           );
                         },
                         child: Text(translate('login.register'), style: const TextStyle(color: AppColors.secondary, fontSize: 14))

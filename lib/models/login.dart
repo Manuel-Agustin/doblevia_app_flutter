@@ -214,7 +214,7 @@ class ChildCodeRequest {
   //String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&child_code=$childCode';
 }
 
-class  ServiceResponse {
+class ServiceResponse {
   final String errorCode;
   final String errorMsg;
   final List<Service>? services;
@@ -698,4 +698,352 @@ class UserChild {
       ncEsProfesor: json['ncEsProfesor'],
       ncEsAdulto: json['ncEsAdulto'],
   );
+}
+
+class NationsResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<Nation>? nations;
+
+  NationsResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.nations,
+  });
+
+  factory NationsResponse.fromJson(List<dynamic> json) {
+    return NationsResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        nations: (json[0]['error_msg'] ?? '0') != '0' ? null : List.generate(json.length, (i) => Nation.fromJson(json[i]))
+    );
+  }
+}
+
+class Nation {
+  final String? siglaNacion;
+  final String? nacion;
+
+  Nation({
+    this.siglaNacion,
+    this.nacion
+  });
+
+  factory Nation.fromJson(Map<String, dynamic> json) {
+    return Nation(
+        siglaNacion: json['SiglaNacion'],
+        nacion: json['Nacion'],
+    );
+  }
+}
+
+class ProvincesResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<Province>? provinces;
+
+  ProvincesResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.provinces,
+  });
+
+  factory ProvincesResponse.fromJson(List<dynamic> json) {
+    return ProvincesResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        provinces: (json[0]['error_msg'] ?? '0') != '0' ? null : List.generate(json.length, (i) => Province.fromJson(json[i]))
+    );
+  }
+}
+
+class Province {
+  final String? codigoProvincia;
+  final String? provincia;
+
+  Province({
+    this.codigoProvincia,
+    this.provincia
+  });
+
+  factory Province.fromJson(Map<String, dynamic> json) {
+    return Province(
+      codigoProvincia: json['CodigoProvincia'],
+      provincia: json['Provincia'],
+    );
+  }
+}
+
+class MunicipiosRequest {
+  final String appCode;
+  final String f;
+  final String username;
+  final String password;
+  final String sign;
+  final String codigoProvincia;
+  final String codigoNacion;
+
+  MunicipiosRequest({
+    required this.appCode,
+    required this.f,
+    required this.username,
+    required this.password,
+    required this.sign,
+    required this.codigoProvincia,
+    required this.codigoNacion
+  });
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'app_code': appCode,
+      'f': f,
+      'username': username,
+      'password': password,
+      'sign': sign,
+      'CodigoProvincia': codigoProvincia,
+      'CodigoNacion': codigoNacion
+    };
+    return map;
+  }
+
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+}
+
+class MunicipiosResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<Municipio>? municipios;
+
+  MunicipiosResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.municipios,
+  });
+
+  factory MunicipiosResponse.fromJson(List<dynamic> json) {
+    return MunicipiosResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        municipios: (json[0]['error_msg'] ?? '0') != '0' ? null : List.generate(json.length, (i) => Municipio.fromJson(json[i]))
+    );
+  }
+}
+
+class Municipio {
+  final String? codigoMunicipio;
+  final String? municipio;
+
+  Municipio({
+    this.codigoMunicipio,
+    this.municipio
+  });
+
+  factory Municipio.fromJson(Map<String, dynamic> json) {
+    return Municipio(
+      codigoMunicipio: json['CodigoProvincia'],
+      municipio: json['Provincia'],
+    );
+  }
+}
+
+class CentrosRequest {
+  final String appCode;
+  final String f;
+  final String username;
+  final String password;
+  final String sign;
+  final String codigoProvincia;
+  final String codigoMunicipio;
+
+  CentrosRequest({
+    required this.appCode,
+    required this.f,
+    required this.username,
+    required this.password,
+    required this.sign,
+    required this.codigoProvincia,
+    required this.codigoMunicipio
+  });
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'app_code': appCode,
+      'f': f,
+      'username': username,
+      'password': password,
+      'sign': sign,
+      'CodigoProvincia': codigoProvincia,
+      'CodigoMunicipio': codigoMunicipio
+    };
+    return map;
+  }
+
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+}
+
+class CentrosResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<Centro>? centros;
+
+  CentrosResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.centros,
+  });
+
+  factory CentrosResponse.fromJson(List<dynamic> json) {
+    return CentrosResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        centros: (json[0]['error_msg'] ?? '0') != '0' ? null : List.generate(json.length, (i) => Centro.fromJson(json[i]))
+    );
+  }
+}
+
+class Centro {
+  final String? ncCodigoCentro;
+  final String? ncNombre;
+  final String? ncMostrarFamiliaNumerosa;
+  final String? ncMostrarPicnic;
+
+  Centro({
+    this.ncCodigoCentro,
+    this.ncNombre,
+    this.ncMostrarFamiliaNumerosa,
+    this.ncMostrarPicnic
+  });
+
+  factory Centro.fromJson(Map<String, dynamic> json) {
+    return Centro(
+        ncCodigoCentro: json['ncCodigoCentro'],
+        ncNombre: json['ncNombre'],
+        ncMostrarFamiliaNumerosa: json['ncMostrarFamiliaNumerosa'],
+        ncMostrarPicnic: json['ncMostrarPicnic']
+    );
+  }
+}
+
+class CursosRequest {
+  final String appCode;
+  final String f;
+  final String username;
+  final String password;
+  final String sign;
+  final String codigoCentro;
+  final String tipoUsuario;
+
+  CursosRequest({
+    required this.appCode,
+    required this.f,
+    required this.username,
+    required this.password,
+    required this.sign,
+    required this.codigoCentro,
+    required this.tipoUsuario
+  });
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'app_code': appCode,
+      'f': f,
+      'username': username,
+      'password': password,
+      'sign': sign,
+      'CodigoCentro': codigoCentro,
+      'tipoUsuario': tipoUsuario
+    };
+    return map;
+  }
+
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+}
+
+class CursosResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<Curso>? cursos;
+
+  CursosResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.cursos,
+  });
+
+  factory CursosResponse.fromJson(List<dynamic> json) {
+    return CursosResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        cursos: (json[0]['error_msg'] ?? '0') != '0' ? null : List.generate(json.length, (i) => Curso.fromJson(json[i]))
+    );
+  }
+}
+
+class Curso {
+  final String? ncCodigoCurso;
+  final String? ncCursoCas;
+  final String? ncCursoCat;
+
+  Curso({
+    this.ncCodigoCurso,
+    this.ncCursoCas,
+    this.ncCursoCat
+  });
+
+  factory Curso.fromJson(Map<String, dynamic> json) {
+    return Curso(
+      ncCodigoCurso: json['ncCodigoCurso'],
+      ncCursoCas: json['ncCurso_cas'],
+      ncCursoCat: json['ncCurso_cat']
+    );
+  }
+}
+
+class TiposUsuarioResponse {
+  final String errorCode;
+  final String errorMsg;
+  final List<UserType>? userTypes;
+
+  TiposUsuarioResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    required this.userTypes,
+  });
+
+  factory TiposUsuarioResponse.fromJson(Map<String, dynamic> json) {
+    final userTypes = <UserType>[];
+    json.forEach((key, value) {
+      if (value is List) {
+        for (var item in value) {
+          userTypes.add(UserType.fromJson(key, item));
+        }
+      }
+    });
+
+    return TiposUsuarioResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        userTypes: (json[0]['error_msg'] ?? '0') != '0' ? null : userTypes
+    );
+  }
+}
+
+class UserType {
+  final String userTypeCode; // Nuevo campo para el código numérico
+  final String ca;
+  final String es;
+
+  UserType({
+    required this.userTypeCode,
+    required this.ca,
+    required this.es,
+  });
+
+  factory UserType.fromJson(String code, Map<String, dynamic> json) {
+    return UserType(
+      userTypeCode: code,
+      ca: json['ca'],
+      es: json['es'],
+    );
+  }
 }

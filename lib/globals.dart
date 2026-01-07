@@ -54,4 +54,10 @@ class FunctionNames {
   static String deleteToken = 'delete_token';
   static String userDisable = 'user_disable';
   static String getMinVersion = 'get_min_version';
+  static String getNaciones = 'get_naciones';
+  static String getProvincias = 'get_provincias';
+  static String getMunicipios = 'get_municipios';
+  static String getCentros = 'get_centros';
+  static String getCursos = 'get_cursos';
+  static String getTiposUsuario = 'get_tipos_usuario';
 }

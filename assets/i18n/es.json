@@ -111,5 +111,33 @@
     "usePreviousCard": "Utilizar los datos de tarjeta guardados",
     "tickets": "Tickets",
     "alreadyPurchased":  "ya reservados"
+  },
+  "signup": {
+    "accessData": "Datos de acceso",
+    "documentType": "TIPO DE DOCUMENTO",
+    "document": "DOCUMENTO (SERÁ TU USUARIO DE ACCESO)",
+    "password": "Contraseña",
+    "passwordCriteria": "La contraseña debe cumplir los siguientes requisitos:",
+    "atLeast": "Al menos ",
+    "passwordCriteria1": "una letra minúscula",
+    "passwordCriteria2": "una letra mayúscula",
+    "passwordCriteria3": "un número",
+    "passwordCriteria4": "Una longitud mínima de ",
+    "passwordCriteria4bold": "8 carácteres",
+    "repeatPassword": "Repetir contraseña",
+    "contactData": "Datos de contacto",
+    "name": "NOMBRE",
+    "surname": "APELLIDOS",
+    "address": "DIRECCIÓN",
+    "postalCode": "CÓDIGO POSTAL",
+    "province": "PROVINCIA",
+    "city": "POBLACIÓN (SELECCIONA ANTES UNA PROVINCIA)",
+    "email1": "EMAIL 1",
+    "email2": "EMAIL 2",
+    "phone": "TELÉFONO",
+    "phone2": "TELÉFONO 2",
+    "center": "CENTRO ESCOLAR",
+    "previous": "Anterior",
+    "next": "Siguiente"
   }
 }

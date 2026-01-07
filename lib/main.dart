@@ -32,12 +32,12 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   } catch (e) {
-    if (kDebugMode) {
-      print("Firebase ya estaba inicializado: $e");
-    }
+    debugPrint("Firebase ya estaba inicializado: $e");
   }
+  debugPrint("Flag 1");
 
   final messaging = FirebaseMessaging.instance;
+  debugPrint("Flag 2");
 
   // Solicitar permiso para notificaciones
   await messaging.requestPermission(
@@ -45,15 +45,20 @@ void main() async {
     badge: true,
     sound: true,
   );
+  debugPrint("Flag 3");
 
-  final String? fcmToken = await messaging.getToken();
+  final String? fcmToken = kIsWeb || defaultTargetPlatform == TargetPlatform.iOS && !kReleaseMode
+      ? "MOCK_TOKEN_FOR_SIMULATOR" // Token simulado para iOS en debug
+      : await messaging.getToken();
+
+  //final String? fcmToken = await messaging.getToken();
+  debugPrint("Flag 4");
   if (kDebugMode) debugPrint('DVLOG: fcmToken = $fcmToken');
+  debugPrint("Flag 5");
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    if (kDebugMode) {
-      debugPrint('Got a message whilst in the foreground! HELLO');
-      debugPrint('Message data: ${message.data}');
-    }
+    debugPrint('Got a message whilst in the foreground! HELLO');
+    debugPrint('Message data: ${message.data}');
 
     if (App.materialKey.currentContext != null && message.notification != null) {
       ScaffoldMessenger.of(App.materialKey.currentContext!).showSnackBar(
@@ -66,6 +71,7 @@ void main() async {
     }
   });
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  debugPrint("Flag 6");
 
   saveStringSharedPreferences(Constants.token, fcmToken ?? '');
 

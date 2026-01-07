@@ -570,6 +570,192 @@ Future<String> getMinVersion(BuildContext context) async {
   }
 }
 
+Future<NationsResponse> getNaciones(BuildContext context) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getNaciones;
+  String username = "";
+  String password = "";
+
+  BasicRequest request = BasicRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username)
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return NationsResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return NationsResponse(errorCode: '', errorMsg: '', nations: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<ProvincesResponse> getProvincias(BuildContext context) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getProvincias;
+  String username = "";
+  String password = "";
+
+  BasicRequest request = BasicRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username)
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return ProvincesResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return ProvincesResponse(errorCode: '', errorMsg: '', provinces: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<MunicipiosResponse> getMunicipios(BuildContext context, String province, String nation) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getMunicipios;
+  String username = "";
+  String password = "";
+
+  MunicipiosRequest request = MunicipiosRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username),
+      codigoProvincia: province,
+      codigoNacion: nation
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return MunicipiosResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return MunicipiosResponse(errorCode: '', errorMsg: '', municipios: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<CentrosResponse> getCentros(BuildContext context, String province, String municipio) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getCentros;
+  String username = "";
+  String password = "";
+
+  CentrosRequest request = CentrosRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username),
+      codigoProvincia: province,
+      codigoMunicipio: municipio
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return CentrosResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return CentrosResponse(errorCode: '', errorMsg: '', centros: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<CursosResponse> getCursos(BuildContext context, String centro, String tipoUsuario) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getCursos;
+  String username = "";
+  String password = "";
+
+  CursosRequest request = CursosRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username),
+      codigoCentro: centro,
+      tipoUsuario: tipoUsuario
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return CursosResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return CursosResponse(errorCode: '', errorMsg: '', cursos: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<TiposUsuarioResponse> getTiposuUsario(BuildContext context) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.getTiposUsuario;
+  String username = "";
+  String password = "";
+
+  BasicRequest request = BasicRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username)
+  );
+
+  if (kDebugMode) print('DVLOG: request: ${json.encode(request.toJson())}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return TiposUsuarioResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return TiposUsuarioResponse(errorCode: '', errorMsg: '', userTypes: []);
+    }
+  } else {
+    if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
 
 
 // NO USAR
