@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
+import '../functions/login.dart';
 import '../globals.dart';
 import 'home.dart';
 
@@ -58,14 +59,12 @@ class _MyLoginPage extends State<MyLoginPage> {
                 color: Colors.white.withOpacity(0.8),
                 padding: const EdgeInsets.all(18),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset('assets/images/dobleviaescoles.png', height: 60),
+                  Image.asset('assets/images/menjasa-logo.png', height: 60),
                   const SizedBox(height: 16),
                   Text(translate('login.title'), style: AppFonts.h2),
                   const SizedBox(height: 12),
-                  //Text(translate('login.user'), style: AppFonts.p),
                   TextField(controller: _nifController, decoration: InputDecoration(hintText: translate('login.userHint'))),
                   const SizedBox(height: 12),
-                  //Text(translate('login.password'), style: AppFonts.p),
                   TextField(
                     controller: _passwordController,
                     obscureText: !_passwordsVisible,
@@ -152,13 +151,14 @@ class _MyLoginPage extends State<MyLoginPage> {
         SnackBar(content: Text(translate('login.tryLater')), backgroundColor: Colors.red),
       );
     } else {
-      _callApi();
+      if (!mounted) return;
+      callApiLogin(context, _nifController.text, _passwordController.text, token);
     }
 
     setState(() => _loading = false);
   }
 
-  void _callApi() async {
+  void callApiLogin2() async {
     try {
       LoginResponse response = await login(context, _nifController.text, _passwordController.text, token);
 
@@ -179,12 +179,12 @@ class _MyLoginPage extends State<MyLoginPage> {
         if (!mounted) return;
         String error = response.errorCode == '00005' ? translate('login.wrongData') : '${response.errorCode}: ${response.errorMsg}';
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('error: $error'), backgroundColor: Colors.red),
+          SnackBar(content: Text(error), backgroundColor: Colors.red),
         );
       } else {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error'), backgroundColor: Colors.red),
+          SnackBar(content: Text(translate('login.tryLater')), backgroundColor: Colors.red),
         );
       }
     } catch (e) {

@@ -11,6 +11,7 @@ class AppFonts {
   static TextStyle h5 = const TextStyle(fontSize: 16);
   static TextStyle button = const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.w600);
   static TextStyle p = const TextStyle(fontSize: 14);
+  static TextStyle error = const TextStyle(fontSize: 12, color: Colors.red);
 }
 
 class AppColors {
@@ -60,4 +61,5 @@ class FunctionNames {
   static String getCentros = 'get_centros';
   static String getCursos = 'get_cursos';
   static String getTiposUsuario = 'get_tipos_usuario';
+  static String setUsuario = 'set_usuario';
 }

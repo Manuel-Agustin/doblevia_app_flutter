@@ -113,8 +113,12 @@
     "alreadyPurchased":  "ya reservados"
   },
   "signup": {
+    "requiredField": "Este campo es obligatorio",
+    "weakPassword": "La contraseña no cumple los requisitos",
+    "passwordUnmatch": "Las contraseñas no coinciden",
     "accessData": "Datos de acceso",
     "documentType": "TIPO DE DOCUMENTO",
+    "passport": "PASAPORTE",
     "document": "DOCUMENTO (SERÁ TU USUARIO DE ACCESO)",
     "password": "Contraseña",
     "passwordCriteria": "La contraseña debe cumplir los siguientes requisitos:",
@@ -138,6 +142,17 @@
     "phone2": "TELÉFONO 2",
     "center": "CENTRO ESCOLAR",
     "previous": "Anterior",
-    "next": "Siguiente"
+    "next": "Siguiente",
+    "rgpd": "Reglamento general de proteción de datos (RGPD)",
+    "policy": "Tratamos los datos que nos facilita con el fin de poder gestionar la inscripción, gestión y cobro de recibos de las actividades que le ofrecemos, así como para informarle de futuras actividades que puedan ser de su interés. Los datos proporcionados se conservarán mientras dure la prestación del servicio o actividad a la que se ha inscrito o ejercite el derecho de cancelación. Usted tiene derecho a obtener confirmación sobre si en DOBLE VIA estamos tratando sus datos personales, rectificar los datos inexactos o solicitar la eliminación cuando ya no sean necesarios para la finalidad por la que fueron recogidos. Para poder continuar debe aceptar nuestra ",
+    "policyLinkText": "Política de Privacidad",
+    "acceptPolicy": "He leído y acepto la política de privacidad en relación con las siguientes acciones del tratamiento de datos:",
+    "dataTreatment": "Tratamiento de mis datos y/o datos de los familiares a mi cargo en relación a la demanda de inscripción, gestión y cobro bancario de las actividades así como nuestra gestión de estos servicios. Me responsabilizo en informar a mi hijo/a mayor de 14 años de la cesión que ha hecho de sus datos.",
+    "resposabilityReal": "Me responsabilizo de la veracidad de los datos que he facilitado a Doble Via, sccl.",
+    "receibeInfo": "Recibir información de otros servicios que pudieran ser de mi interés.",
+    "finish": "Terminar",
+    "acceptMainCheck": "Hay que aceptar la política de privacidad",
+    "acceptDataCheck": "Hay que aceptar el tratamiento de datos en relación a su inscripción",
+    "acceptResponsabilityCheck": "Este dato es obligatorio"
   }
 }

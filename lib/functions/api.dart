@@ -10,6 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:crypto/crypto.dart';
 
 import '../globals.dart';
+import '../globals.dart' as globals;
 
 String sign(String f, String username) {
   String appCode = Constants.appCode;
@@ -684,6 +685,7 @@ Future<CentrosResponse> getCentros(BuildContext context, String province, String
 
   if (response.statusCode == 200) {
     if (response.body.isNotEmpty) {
+      debugPrint('centros response: ${response.body}');
       return CentrosResponse.fromJson(jsonDecode(response.body));
     } else {
       return CentrosResponse(errorCode: '', errorMsg: '', centros: []);
@@ -752,6 +754,38 @@ Future<TiposUsuarioResponse> getTiposuUsario(BuildContext context) async {
     }
   } else {
     if (kDebugMode) print('Status code: ${response.statusCode}');
+    throw Exception('Failed to $f: ${response.statusCode}');
+  }
+}
+
+Future<SetUsuarioResponse> setUsario(BuildContext context, Usuario user) async {
+  String appCode = Constants.appCode;
+  String f = FunctionNames.setUsuario;
+  String username = "";
+  String password = "";
+
+  SetUsuarioRequest request = SetUsuarioRequest(
+      appCode: appCode,
+      f: f,
+      username: username,
+      password: password,
+      sign: sign(f, username),
+      lang: globals.languageNotifier.value,
+      usuario: user
+  );
+
+  debugPrint('DVLOG: request: ${Constants.apiUrl}?${request.toGetString()}');
+
+  final response = await http.get(Uri.parse('${Constants.apiUrl}?${request.toGetString()}'));
+
+  if (response.statusCode == 200) {
+    if (response.body.isNotEmpty) {
+      return SetUsuarioResponse.fromJson(jsonDecode(response.body));
+    } else {
+      return SetUsuarioResponse(errorCode: '', errorMsg: '');
+    }
+  } else {
+    debugPrint('Status code: ${response.statusCode}');
     throw Exception('Failed to $f: ${response.statusCode}');
   }
 }

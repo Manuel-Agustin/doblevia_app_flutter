@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class LoginRequest {
   final String appCode;
   final String f;
@@ -806,7 +808,7 @@ class MunicipiosRequest {
     return map;
   }
 
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&CodigoProvincia=$codigoProvincia&CodigoNacion=$codigoNacion';
 }
 
 class MunicipiosResponse {
@@ -840,8 +842,8 @@ class Municipio {
 
   factory Municipio.fromJson(Map<String, dynamic> json) {
     return Municipio(
-      codigoMunicipio: json['CodigoProvincia'],
-      municipio: json['Provincia'],
+      codigoMunicipio: json['CodigoMunicipio'],
+      municipio: json['Municipio'],
     );
   }
 }
@@ -878,7 +880,7 @@ class CentrosRequest {
     return map;
   }
 
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&CodigoProvincia=$codigoProvincia&CodigoMunicipio=$codigoMunicipio';
 }
 
 class CentrosResponse {
@@ -902,16 +904,18 @@ class CentrosResponse {
 }
 
 class Centro {
-  final String? ncCodigoCentro;
+  final int ncCodigoCentro;
   final String? ncNombre;
-  final String? ncMostrarFamiliaNumerosa;
-  final String? ncMostrarPicnic;
+  final int ncMostrarFamiliaNumerosa;
+  final int ncMostrarPicnic;
+  final List<Menu>? menus;
 
   Centro({
-    this.ncCodigoCentro,
+    required this.ncCodigoCentro,
     this.ncNombre,
-    this.ncMostrarFamiliaNumerosa,
-    this.ncMostrarPicnic
+    required this.ncMostrarFamiliaNumerosa,
+    required this.ncMostrarPicnic,
+    this.menus
   });
 
   factory Centro.fromJson(Map<String, dynamic> json) {
@@ -919,7 +923,28 @@ class Centro {
         ncCodigoCentro: json['ncCodigoCentro'],
         ncNombre: json['ncNombre'],
         ncMostrarFamiliaNumerosa: json['ncMostrarFamiliaNumerosa'],
-        ncMostrarPicnic: json['ncMostrarPicnic']
+        ncMostrarPicnic: json['ncMostrarPicnic'],
+        menus: json['menus'] == null ? null : List.generate(json['menus'].length, (i) => Menu.fromJson(json['menus'][i]))
+    );
+  }
+}
+
+class Menu {
+  final int ncCodigoTipoMenu;
+  final String? ncTipoMenuCas;
+  final String? ncTipoMenuCat;
+
+  Menu({
+    required this.ncCodigoTipoMenu,
+    this.ncTipoMenuCas,
+    this.ncTipoMenuCat
+  });
+
+  factory Menu.fromJson(Map<String, dynamic> json) {
+    return Menu(
+        ncCodigoTipoMenu: json['ncCodigoTipoMenu'],
+        ncTipoMenuCas: json['ncTipoMenu_cas'],
+        ncTipoMenuCat: json['ncTipoMenu_cat']
     );
   }
 }
@@ -956,7 +981,7 @@ class CursosRequest {
     return map;
   }
 
-  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign';
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&CodigoCentro=$codigoCentro&tipoUsuario=$tipoUsuario';
 }
 
 class CursosResponse {
@@ -1044,6 +1069,138 @@ class UserType {
       userTypeCode: code,
       ca: json['ca'],
       es: json['es'],
+    );
+  }
+}
+
+class SetUsuarioRequest {
+  final String appCode;
+  final String f;
+  final String username;
+  final String password;
+  final String sign;
+  final String lang;
+  final Usuario usuario;
+
+  SetUsuarioRequest({
+    required this.appCode,
+    required this.f,
+    required this.username,
+    required this.password,
+    required this.sign,
+    required this.lang,
+    required this.usuario
+  });
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'app_code': appCode,
+      'f': f,
+      'username': username,
+      'password': password,
+      'sign': sign,
+      'lang': lang,
+      'usuario': usuario
+    };
+    return map;
+  }
+
+  String toGetString() => 'app_code=$appCode&f=$f&username=$username&password=$password&sign=$sign&lang=$lang&usuario=${json.encode(usuario.toJson())}';
+}
+
+class Usuario {
+  final String nif;
+  final String password;
+  final String nom;
+  final String cognoms;
+  final String domicilio;
+  final String codigopostal;
+  final String codigoprovincia;
+  final String codigomunicipio;
+  final String email;
+  final String email2;
+  final String telefono;
+  final String telefono2;
+  final int ncokpoliticaprivacidad;
+  final int ncokgestionservicio;
+  final int ncokrecibirpublicidad;
+  final int ncautorizawhatsapp;
+  final int codigocentro;
+  final String nombrecentro;
+  final String siglanacion;
+  final String tipodoc;
+
+  Usuario({
+    required this.nif,
+    required this.password,
+    required this.nom,
+    required this.cognoms,
+    required this.domicilio,
+    required this.codigopostal,
+    required this.codigoprovincia,
+    required this.codigomunicipio,
+    required this.email,
+    required this.email2,
+    required this.telefono,
+    required this.telefono2,
+    required this.ncokpoliticaprivacidad,
+    required this.ncokgestionservicio,
+    required this.ncokrecibirpublicidad,
+    required this.ncautorizawhatsapp,
+    required this.codigocentro,
+    required this.nombrecentro,
+    required this.siglanacion,
+    required this.tipodoc,
+  });
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> map = {
+      'nif': nif,
+      'password': password,
+      'nom': nom,
+      'cognoms': cognoms,
+      'domicilio': domicilio,
+      'codigopostal': codigopostal,
+      'codigoprovincia': codigoprovincia,
+      'codigomunicipio': codigomunicipio,
+      'email1': email,
+      'email2': email2,
+      'telefono': telefono,
+      'telefono2': telefono2,
+      'ncokpoliticaprivacidad': ncokpoliticaprivacidad,
+      'ncokgestionservicio': ncokgestionservicio,
+      'ncokrecibirpublicidad': ncokrecibirpublicidad,
+      'ncautorizawhatsapp': ncautorizawhatsapp,
+      'codigocentro': codigocentro,
+      'nombrecentro': nombrecentro,
+      'siglanacion': siglanacion,
+      'tipodoc': tipodoc,
+    };
+    return map;
+  }
+
+  String toGetString() => 'nif=$nif&password=$password&nom=$nom&cognoms=$cognoms&domicilio=$domicilio&codigopostal=$codigopostal&codigoprovincia=$codigoprovincia&codigomunicipio=$codigomunicipio&email=$email&email2=$email2&telefono=$telefono&telefono2=$telefono2&ncokpoliticaprivacidad=$ncokpoliticaprivacidad&ncokgestionservicio=$ncokgestionservicio&ncokrecibirpublicidad=$ncokrecibirpublicidad&ncautorizawhatsapp=$ncautorizawhatsapp&codigocentro=$codigocentro&nombrecentro=$nombrecentro&siglanacion=$siglanacion&tipodoc=$tipodoc';
+}
+
+class SetUsuarioResponse {
+  final String errorCode;
+  final String errorMsg;
+  final String? success;
+  final String? codigocliente;
+
+  SetUsuarioResponse({
+    required this.errorCode,
+    required this.errorMsg,
+    this.success,
+    this.codigocliente
+  });
+
+  factory SetUsuarioResponse.fromJson(List<dynamic> json) {
+    return SetUsuarioResponse(
+        errorCode: json[0]['error_code'] ?? '0',
+        errorMsg: json[0]['error_msg'] ?? '0',
+        success: json[0]['success'],
+        codigocliente: json[0]['codigocliente']
     );
   }
 }
