@@ -110,7 +110,8 @@
     "rememberCard": "Recordar los datos de tarjeta para futuras compras",
     "usePreviousCard": "Utilizar los datos de tarjeta guardados",
     "tickets": "Tickets",
-    "alreadyPurchased":  "ya reservados"
+    "alreadyPurchased":  "ya reservados",
+    "noParticipants": "Encara no tens participants afegits. Ve a Inici per afegir un participant"
   },
   "signup": {
     "requiredField": "Este campo es obligatorio",
@@ -153,6 +154,7 @@
     "finish": "Terminar",
     "acceptMainCheck": "Hay que aceptar la política de privacidad",
     "acceptDataCheck": "Hay que aceptar el tratamiento de datos en relación a su inscripción",
-    "acceptResponsabilityCheck": "Este dato es obligatorio"
+    "acceptResponsabilityCheck": "Este dato es obligatorio",
+    "invalidDocument": "Documento no válido"
   }
 }

@@ -59,7 +59,7 @@ class _MyLoginPage extends State<MyLoginPage> {
                 color: Colors.white.withOpacity(0.8),
                 padding: const EdgeInsets.all(18),
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset('assets/images/menjasa-logo.png', height: 60),
+                  Image.asset('assets/images/menjasa-logo-transparent.png', height: 60),
                   const SizedBox(height: 16),
                   Text(translate('login.title'), style: AppFonts.h2),
                   const SizedBox(height: 12),

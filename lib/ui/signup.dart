@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:doblevia/functions/api.dart';
 import 'package:doblevia/models/login.dart';
+import 'package:doblevia/ui/webview.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 
@@ -143,7 +145,7 @@ class _MySignupPage extends State<MySignupPage> {
 
   List<Widget> _page1() {
     return [
-      Image.asset('assets/images/menjasa-logo.png', height: 60),
+      Image.asset('assets/images/menjasa-logo-transparent.png', height: 60),
       const SizedBox(height: 16),
       Text(translate('signup.accessData'), style: AppFonts.h4),
       const SizedBox(height: 12),
@@ -165,7 +167,7 @@ class _MySignupPage extends State<MySignupPage> {
       _typeDocumentError ? Text(translate('signup.requiredField'), style: AppFonts.error) : Container(),
 
       TextField(controller: _nifController, decoration: InputDecoration(hintText: translate('signup.document'))),
-      _documentError ? Text(translate('signup.requiredField'), style: AppFonts.error) : Container(),
+      _documentError ? Text(translate('signup.invalidDocument'), style: AppFonts.error) : Container(),
 
       const SizedBox(height: 12),
       TextField(
@@ -311,6 +313,8 @@ class _MySignupPage extends State<MySignupPage> {
       TextField(controller: _phone2Controller, decoration: InputDecoration(hintText: translate('signup.phone2')), keyboardType: TextInputType.phone),
       DropdownButton<int>(
         value: _selectedCentro, // Valor actual
+        hint: Text(translate('signup.center'), overflow: TextOverflow.ellipsis),
+        isExpanded: true,
         items: _centers.map((Centro value) {
           return DropdownMenuItem<int>(
             value: value.ncCodigoCentro, // Asignar el valor único
@@ -323,7 +327,6 @@ class _MySignupPage extends State<MySignupPage> {
             _selectedCentroName = _centers.firstWhere((Centro c) => c.ncCodigoCentro == newValue).ncNombre!;
           });
         },
-        hint: Text(translate('signup.center')), // Opcional: texto cuando no hay selección
       ),
       _centerError ? Text(translate('signup.requiredField'), style: AppFonts.error) : Container(),
 
@@ -378,9 +381,14 @@ class _MySignupPage extends State<MySignupPage> {
           children: <InlineSpan>[
             TextSpan(
               text: translate('signup.policyLinkText'),
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => InAppWebViewPage(url: '${Constants.redirectionBase}/politica-privacitat', title: translate('signup.policyLinkText')))
+                  );
+                }
             ),
           ],
         ),
@@ -506,16 +514,10 @@ class _MySignupPage extends State<MySignupPage> {
     );
   }
 
-  void _signup() {
-    debugPrint('flag 1');
+  void _signup() async {
     setState(() => _loading = true);
-    debugPrint('flag 2');
-    sleep(const Duration(seconds: 5));
-    debugPrint('flag 3');
     bool errors = _validateForm2();
-    debugPrint('flag 4');
-    if (!errors) _callApi();
-    debugPrint('flag 5');
+    if (!errors) await _callApi();
     setState(() => _loading = false);
   }
 
@@ -534,9 +536,9 @@ class _MySignupPage extends State<MySignupPage> {
     setState(() {
       _typeDocumentError = (_selectedDocumentType == null);
       _documentError
-          = _selectedDocumentType == _documentTypes[0] ? _isNIFValid()
-          : _selectedDocumentType == _documentTypes[1] ? _isNIEValid()
-          : _isPassportValid();
+          = _selectedDocumentType == _documentTypes[0] ? !_isNIFValid()
+          : _selectedDocumentType == _documentTypes[1] ? !_isNIEValid()
+          : !_isPassportValid();
       _passwordEmptyError = (_passwordController.text == "");
       _passwordMatchError = (_passwordController.text != _repeatPasswordController.text);
       _passwordWeakError = !RegExp(r'[a-z]').hasMatch(_passwordController.text)
@@ -562,6 +564,7 @@ class _MySignupPage extends State<MySignupPage> {
   }
 
   bool _isNIFValid() {
+    debugPrint('validating nif');
     String nif = _nifController.text;
 
     if (nif.length != 9) return false;
@@ -581,6 +584,7 @@ class _MySignupPage extends State<MySignupPage> {
   }
 
   bool _isNIEValid() {
+    debugPrint('validating nie');
     String nie = _nifController.text;
 
     if (nie.length != 9) return false;
@@ -602,6 +606,7 @@ class _MySignupPage extends State<MySignupPage> {
   }
 
   bool _isPassportValid() {
+    debugPrint('validating passport');
     String p = _nifController.text;
 
     if (p.length < 3 || p.length > 20) return false;
@@ -610,7 +615,7 @@ class _MySignupPage extends State<MySignupPage> {
   }
 
 
-  void _callApi() async {
+  Future<bool> _callApi() async {
     debugPrint('DVLOG: flag 1');
     try {
       Usuario user = Usuario(
@@ -641,22 +646,23 @@ class _MySignupPage extends State<MySignupPage> {
 
       debugPrint('DVLOG: signup response: ${response.toString()}');
       if (response.success != null) {
-        if (!mounted) return;
         callApiLogin(context, _nifController.text, _passwordController.text, await getToken());
+        return true;
       } else if (response.errorCode != '' || response.errorMsg != '') {
-        if (!mounted) return;
         String error = '${response.errorCode}: ${response.errorMsg}';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(error), backgroundColor: Colors.red),
         );
+        return false;
       } else {
-        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(translate('login.tryLater')), backgroundColor: Colors.red),
         );
+        return false;
       }
     } catch (e) {
       debugPrint('DVLOG: $e');
+      return false;
     }
   }
 }

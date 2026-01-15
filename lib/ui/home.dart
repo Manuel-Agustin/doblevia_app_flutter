@@ -1021,6 +1021,27 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         ListView(
           padding: const EdgeInsets.all(24),
           children: [
+            _children.length == 1 && _children[0].childName == '' ? Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.secondary, width: 2),
+                borderRadius: const BorderRadius.all(Radius.circular(8))
+              ),
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(bottom: 24),
+              child: Row(children: [
+                const Icon(Icons.warning_amber, color: AppColors.secondary,),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(translate('sporadic.noParticipants'),
+                    maxLines: 5,
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: AppColors.secondary)
+                  )
+                )
+              ])
+            ) : Container(),
+
             Text(translate('sporadic.name'), style: titleStyle),
             DropdownButton<int>(
                 value: _selectedChild,
