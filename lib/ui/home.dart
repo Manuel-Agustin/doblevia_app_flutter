@@ -95,8 +95,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _tabController = TabController(vsync: this, length: 3);
-    _tabController.addListener(() {
-      setState(() {});
+    _tabController.addListener(() async {
+      try {
+        await _getChildren();
+        debugPrint('hello listener');
+      } catch (e) {
+        debugPrint('Error en listener: $e');
+      }
     });
 
     changeLocale(context, languageNotifier.value);
@@ -210,11 +215,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
 
   void _showScaffoldMessage(e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Catch: $e'), backgroundColor: Colors.red),
+      SnackBar(content: Text(e), backgroundColor: Colors.red),
     );
   }
 
-  void _getChildren() async {
+  Future<bool> _getChildren() async {
+    debugPrint('getting children');
     try {
       ChildResponse childResponse = await getChildren(context);
       List<Child> children = childResponse.children;
@@ -223,10 +229,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
         setState(() => _children.addAll(children));
         _getServices(_children[_selectedChild].childCode ?? '');
       } else {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error code: ${children.first.errorCode}, error message: ${children.first.errorMsg}'), backgroundColor: Colors.red),
-        );
+        _showScaffoldMessage('${children.first.errorCode}: ${children.first.errorMsg}');
       }
     } catch (e) {
       _showScaffoldMessage(e);
@@ -238,6 +241,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver, Ti
       _rememberCard = r;
       _firstTimeRememberingCard = ft;
     });
+
+    return true;
   }
 
   void _changeMonth() async {
