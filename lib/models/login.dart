@@ -908,6 +908,7 @@ class Centro {
   final String? ncNombre;
   final int ncMostrarFamiliaNumerosa;
   final int ncMostrarPicnic;
+  final int estado;
   final List<Menu>? menus;
 
   Centro({
@@ -915,6 +916,7 @@ class Centro {
     this.ncNombre,
     required this.ncMostrarFamiliaNumerosa,
     required this.ncMostrarPicnic,
+    required this.estado,
     this.menus
   });
 
@@ -924,6 +926,7 @@ class Centro {
         ncNombre: json['ncNombre'],
         ncMostrarFamiliaNumerosa: json['ncMostrarFamiliaNumerosa'],
         ncMostrarPicnic: json['ncMostrarPicnic'],
+        estado: json['estado'] ?? 0,
         menus: json['menus'] == null ? null : List.generate(json['menus'].length, (i) => Menu.fromJson(json['menus'][i]))
     );
   }

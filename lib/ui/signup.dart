@@ -112,7 +112,7 @@ class _MySignupPage extends State<MySignupPage> {
       _showSnack(centrosResponse.errorMsg);
     } else {
       _selectedCentro = null;
-      _centers = centrosResponse.centros!;
+      _centers = centrosResponse.centros!.where((Centro c) => c.estado == 1).toList();
     }
     setState(() => {});
   }
